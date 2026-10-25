@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liga Reset 2026</title>
+<style>
+:root{
+  --bg:#f6f4f1; --surface:#ffffff; --surface-2:#f2eee9; --text:#1d1b19; --muted:#6d665e; --border:#e4ded6;
+  --accent:#d9601a; --accent-ink:#ffffff; --accent-soft:#fbe7d8;
+  --win:#1e8449; --win-soft:#ddf1e4; --lose:#c0392b; --lose-soft:#f8dfdc; --warn:#a86b00; --warn-soft:#fff1cf;
+  --gold:#c99a06; --silver:#8d97a4; --bronze:#b06a35;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131110; --surface:#1c1917; --surface-2:#262220; --text:#f2ede7; --muted:#a69d93; --border:#36302b;
+    --accent:#f07a2e; --accent-ink:#1a0d04; --accent-soft:#3b2414;
+    --win:#4cc27e; --win-soft:#16301f; --lose:#ef6b5f; --lose-soft:#3a1b18; --warn:#f0b43c; --warn-soft:#3a2c0e;
+    --shadow:none; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131110; --surface:#1c1917; --surface-2:#262220; --text:#f2ede7; --muted:#a69d93; --border:#36302b;
+  --accent:#f07a2e; --accent-ink:#1a0d04; --accent-soft:#3b2414;
+  --win:#4cc27e; --win-soft:#16301f; --lose:#ef6b5f; --lose-soft:#3a1b18; --warn:#f0b43c; --warn-soft:#3a2c0e;
+  --shadow:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+header.top{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+.top-in{max-width:1200px;margin:0 auto;padding:12px 16px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.01em}
+.brand .logo{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:15px;font-weight:800}
+.prog{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+.bar{width:140px;height:6px;border-radius:9px;background:var(--surface-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+nav.tabs{max-width:1200px;margin:0 auto;padding:8px 16px 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs a{padding:9px 12px;border-bottom:2px solid transparent;color:var(--muted);text-decoration:none;white-space:nowrap;font-weight:500}
+nav.tabs a:hover{color:var(--text)}
+nav.tabs a.on{color:var(--text);border-color:var(--accent)}
+main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.015em}
+h2{font-size:16px;margin:0 0 10px}
+h3{font-size:14px;margin:0 0 8px}
+.sub{color:var(--muted);margin:0 0 18px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--shadow);min-width:0}
+.card.flat{box-shadow:none}
+.sec{margin-top:26px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sp{flex:1}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.live{background:var(--accent-soft);color:var(--accent)}
+.pill.done{background:var(--win-soft);color:var(--win)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.live::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.team{display:inline-flex;align-items:center;gap:7px;min-width:0;max-width:100%}
+.team .tn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team .tc{display:block;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.esc{position:relative;flex:none;width:22px;height:22px;border-radius:50%;background:var(--surface-2);display:inline-grid;place-items:center;font-size:10px;font-weight:700;color:var(--muted);overflow:hidden}
+.esc img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.esc.lg{width:40px;height:40px;font-size:15px}
+.tbd{color:var(--muted);font-style:italic}
+table{border-collapse:collapse;width:100%}
+th,td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+th.l,td.l{text-align:left}
+td.t{text-align:left;max-width:240px;white-space:normal}
+tr:last-child td{border-bottom:0}
+td.pos{width:28px;color:var(--muted);font-weight:600}
+tr.z-q td.pos{color:var(--win)}
+tr.z-r td.pos{color:var(--accent)}
+tr.z-g td.pos{color:var(--gold)}
+tr.out td{opacity:.55}
+tr.me{background:var(--accent-soft)}
+.tw{overflow-x:auto;margin:0 -2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.match{display:grid;grid-template-columns:1fr auto auto auto 1fr;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.match:last-child{border-bottom:0}
+.match .h{justify-self:end;text-align:right}
+.match .h .team{flex-direction:row-reverse}
+.match .sc{font-weight:600;min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
+.match .x{color:var(--muted);font-size:12px}
+.match .w{color:var(--win)}
+.match .l{color:var(--muted);font-weight:500}
+@media (max-width:560px){.match{grid-template-columns:1fr auto auto auto 1fr;gap:4px}.match .sc{min-width:44px}.match .tn{max-width:92px}}
+.rsel{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.rsel button{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px;font-variant-numeric:tabular-nums}
+.rsel button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.rsel button.fut{color:var(--muted)}
+.bracket{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px}
+.bcol{display:flex;flex-direction:column;gap:8px;min-width:250px;flex:1}
+.bcol .bc{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:10px}
+.bcol h3{text-align:center;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin:0}
+.mm{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.mm-h{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:5px 9px;background:var(--surface-2)}
+.mm-r{display:grid;grid-template-columns:1fr 46px 46px 54px;gap:4px;align-items:center;padding:6px 9px;font-variant-numeric:tabular-nums}
+.mm-r+.mm-r{border-top:1px solid var(--border)}
+.mm-r span.v{text-align:right;color:var(--muted);font-size:12px}
+.mm-r span.ag{text-align:right;font-weight:700}
+.mm-r.win{background:var(--win-soft)}
+.mm-r.win span.ag{color:var(--win)}
+.mm-r.lose .tn{opacity:.6}
+.mm-lab{display:grid;grid-template-columns:1fr 46px 46px 54px;gap:4px;padding:3px 9px 0;font-size:10px;color:var(--muted);text-align:right}
+.mm-lab span:first-child{text-align:left}
+.mm-note{font-size:11px;padding:4px 9px;background:var(--warn-soft);color:var(--warn)}
+.kpi{display:flex;flex-direction:column;gap:4px}
+.kpi .v{font-size:22px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.comp{display:flex;flex-direction:column;gap:10px}
+.comp .ttl{display:flex;align-items:center;gap:8px}
+.comp .ttl b{font-size:15px}
+.comp .who{display:flex;align-items:center;gap:10px}
+.medal{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;color:#fff;flex:none}
+.m1{background:var(--gold)}.m2{background:var(--silver)}.m3{background:var(--bronze)}.m4{background:var(--muted)}
+.btn{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--lose)}
+textarea{width:100%;min-height:140px;border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:8px;font:12px/1.4 ui-monospace,Consolas,monospace;resize:vertical}
+input[type=number],select{border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:6px 8px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:4px 16px;margin-top:10px}
+.sgrid label{display:flex;align-items:center;gap:8px;padding:3px 0;border-bottom:1px dashed var(--border)}
+.sgrid label .team{flex:1}
+.sgrid input{width:80px;text-align:right}
+.sgrid input.miss{border-color:var(--warn);background:var(--warn-soft)}
+.note{padding:10px 12px;border-radius:10px;background:var(--surface-2);font-size:13px}
+.note.warn{background:var(--warn-soft);color:var(--warn)}
+.note.ok{background:var(--win-soft);color:var(--win)}
+.rules td,.rules th{white-space:normal;text-align:left;vertical-align:top}
+.rules td:first-child{font-weight:600}
+.rules ul{margin:0;padding-left:16px}
+details>summary{cursor:pointer;color:var(--muted);font-size:12px;margin-top:8px}
+.r1list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:6px}
+.r1i{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+.r1i .sp{min-width:0}
+.r1i.out{opacity:.5}
+.r1i.champ{border-color:var(--gold)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13px;z-index:20;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><span class="logo">R</span><span id="ttl">Liga Reset</span></div>
+    <div class="prog"><span id="progtxt"></span><span class="bar"><i id="progbar"></i></span></div>
+  </div>
+  <nav class="tabs" id="nav"></nav>
+</header>
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+
+<script id="liga-dados" type="application/json">{"nome":"Liga Reset 2026","temporada":2026,"times":[{"id":298158,"nome":"E. C. Kabulozo","cartola":"Neto Kabulozo","escudo":"https://s2-cartola.glbimg.com/ZY4UDu6q6F2yuYCAX2hEG2tUudQ=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/8c/38/31/00979db971-d734-402b-ae2c-ceb0d771708c20260124143831"},{"id":7057462,"nome":"Chuta Que e GOOOL MT","cartola":"Aci","escudo":"https://s2-cartola.glbimg.com/Ni_Rlh1Hh_5sJ09ihx0dIWu7O1Q=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_5/escudo/22/17/39/0027722d0d-391a-4f05-ac99-33a043ef622220260404201739"},{"id":373462,"nome":"Fodelança Munchen","cartola":"Diego Roger","escudo":"https://s2-cartola.glbimg.com/FO7SKuJz1YnMvUOPrfUkJlcMnnM=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_svg_238/escudo/28/04/30/008d4bec61-1abf-4c92-93bf-62aa9e06f42820250327130430"},{"id":26332741,"nome":"RogerioFla80","cartola":"Rogério Antonio","escudo":"https://s2-cartola.glbimg.com/-qeHrxtaDkCi2sCDDPXTazw2Fyg=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_svg_226/escudo/1c/14/13/00cb82b9ed-9614-41cf-af11-d477f18bb31c20240413081413"},{"id":49349829,"nome":"Paulo Costagem FC","cartola":"Paulo Costa","escudo":"https://s2-cartola.glbimg.com/ZuQESoa769rXEqdkz91Y37bToN0=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_4/escudo/38/49/18/00b7c5aba0-f0ad-49e2-a6dd-bc7e6fd5a23820260128154918"},{"id":49516202,"nome":"Jumentus Football Club v100","cartola":"Kauê Lennon","escudo":"https://s2-cartola.glbimg.com/-bQg_bBwEjPB69PqQU_7nLkqkxA=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_svg_227/escudo/01/31/42/0039a0ca0d-4939-456d-951f-8818d8c70d0120240415093142"},{"id":2383356,"nome":"4DR14110","cartola":"Adriano Borges","escudo":"https://s2-cartola.glbimg.com/cp4v4T79DP0lkH7_4MM-a2YyBr4=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/f1/35/08/00d36319cd-7255-456b-93ec-e9636d8209f120260122203508"},{"id":8082561,"nome":"VTR9 FC","cartola":"João Vitor","escudo":"https://s2-cartola.glbimg.com/VXhLwZOAlsBd7Xxej8JWaEsG24A=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_svg_238/escudo/1e/16/38/00077c6f01-c564-470d-907d-573b313da21e20250327101638"},{"id":8043,"nome":"Nem na Bala","cartola":"Guilherme Buss","escudo":"https://s2-cartola.glbimg.com/ajQNEVdyjA33dDrE96k1eLYWqpw=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/57/11/21/00f0187542-66c7-4b76-919a-31e3b49d645720260114091121"},{"id":13966613,"nome":"Sir Rei do Cartola","cartola":"Udieslley Ximenes","escudo":"https://s2-cartola.glbimg.com/fW2Hs6xS3-JGVds_z92tZDmDth0=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/29/48/54/0089452f59-4a83-43a5-85df-35f3756df92920260123214854"},{"id":5173098,"nome":"DANCR7 #Al-Nassr MS#","cartola":"Daniell 07","escudo":"https://s2-cartola.glbimg.com/9K-awQd-aHQEbYxMETgMwDUoOjg=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_svg_223/escudo/85/06/35/001c5ebadc-fbd9-4bbf-9f78-ecb4ccdead8520240328190635"},{"id":189153,"nome":"Tricolore","cartola":"Felipe Bombis","escudo":"https://s2-cartola.glbimg.com/4BSpeD_ljlrO7_gR8XyHeUNaRt4=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/de/46/45/008d591ae9-b39c-41b3-a9e3-806841c6e3de20260126124645"},{"id":13258912,"nome":"VMESSAGIFC","cartola":"Valdinei Messagi","escudo":"https://s2-cartola.glbimg.com/3mN4uvm9S6Fmurrh14rQvCbXDsY=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/16/05/43/0046fe2113-9352-40f9-9dc3-cdd80583b91620260117130543"},{"id":5002468,"nome":"Chá de Banco FC","cartola":"Gabriel Campos","escudo":"https://s2-cartola.glbimg.com/inUC8iR_M7--81Tkf8XKWinTYiU=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/61/13/30/000b33fec0-15b3-4da4-8b49-9bf9b79cc96120260127131330"},{"id":4108689,"nome":"Debaurianos AC","cartola":"Alan Quadros","escudo":"https://s2-cartola.glbimg.com/YUVasqOjSgPdn7whAes1z5gwLxo=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/93/17/14/00b2ba72e3-69f3-4ca6-a0c9-a454fe74df9320260121191714"},{"id":47785835,"nome":"Atletica Capivarão","cartola":"Carlos Matsubara","escudo":"https://s2-cartola.glbimg.com/zdcyNTh2Z9rPjMCdevxXCoTcB_8=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_4/escudo/f6/59/12/000af5f94c-629f-4044-be60-1fce20c15df620260128165912"},{"id":1763729,"nome":"Ghassemito show","cartola":"Louis Ghassen","escudo":"https://s2-cartola.glbimg.com/fWLCEKsX3lA90FpZnUrLSDZ_sVQ=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/30/49/19/00f03724ed-b7b6-46d8-9d9f-60d92523713020260113134919"},{"id":13956019,"nome":"Locoalmeida","cartola":"Pedro Felipe Almeida","escudo":"https://s2-cartola.glbimg.com/MeiIEsAQwwUL6EcDb9eWgY4Hrkc=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/c2/04/27/00168cbc71-f376-4702-a6be-335f8a9457c220260113120427"},{"id":14859081,"nome":"FC ROCHEDO CITY","cartola":"João Paulo Oliveira","escudo":"https://s2-cartola.glbimg.com/2i8dHwRK2a71GnhRUxP8AargYFI=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/21/15/23/0048051036-f139-49b7-8be9-ec91055edb2120260127111523"},{"id":2373025,"nome":"MalakosMS","cartola":"WALYSOM ANTONIO","escudo":"https://s2-cartola.glbimg.com/05EFXMGOFJWoESZSfgeiNY_IUVk=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/08/41/56/006b1b1611-a220-4fe4-a92e-c8f26e5dd00820260120234156"},{"id":6335880,"nome":"TE ARREBENTO 2026","cartola":"WILLIAN RIZALDE","escudo":"https://s2-cartola.glbimg.com/I0RcMLW3kAxfU3DXgUSUKsXGMig=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/d3/34/53/0070761b73-6175-4d44-a2ea-81956d399fd320260121213453"},{"id":51023478,"nome":"Floripavaianos TT","cartola":"Rodrigo Neri","escudo":"https://s2-cartola.glbimg.com/90YZIuvZBDn0n-SqjXm-ctwdZC4=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/ba/30/42/00be9ffaed-4d15-4684-9c26-83414a379dba20260123173042"},{"id":44808797,"nome":"Vedacity WT","cartola":"Weverton Teodoro","escudo":"https://s2-cartola.glbimg.com/aI7PVkLgXu1MMmRnG9YszRfHCB8=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_4/escudo/6c/15/12/008451b3f8-5a57-4340-ad23-e250a09e5f6c20260128141512"},{"id":4253291,"nome":"LSA Amorim","cartola":"Leandro Amorim","escudo":"https://s2-cartola.glbimg.com/sZT3PnpwV66_CcHQgo_jPxgiKM4=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_5/escudo/27/34/12/00b344cc7d-bfb3-4b87-93bc-f44f7247542720260404163412"},{"id":4455883,"nome":"KID UNITED FC","cartola":"Sidney Ferreira","escudo":"https://s2-cartola.glbimg.com/LQypnJotoEK4T4988qb-h_5rDMY=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_svg_211/escudo/a2/46/00/00d3474fed-da8d-424e-87f0-009a6368a3a220230316204600"},{"id":16434861,"nome":"Comedor de URUBU MS","cartola":"Marcão de ponta","escudo":"https://s2-cartola.glbimg.com/-fejLEXVM5kCQtJbshYTlsZk9pY=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/93/04/39/002f2f4187-7da7-472c-b715-1f3b96af8e9320260114020439"},{"id":23976307,"nome":"Morfossintaxe FC","cartola":"Nidiane Silva","escudo":"https://s2-cartola.glbimg.com/rEKRV_IH_yUxFY8MaWHtnBWAs7M=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/ff/52/11/00e56d7c1e-f6de-4ba5-8f57-9833d2e83aff20260114015211"},{"id":10466098,"nome":"FL@MENGO MS","cartola":"Laura Helena","escudo":"https://s2-cartola.glbimg.com/NY2JUAoKKMHfSq_y6NgJcEPoMSA=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_svg_236/escudo/ba/20/25/00207ed79a-86f7-4c60-b940-9dd16f9d75ba20250315192025"},{"id":13940832,"nome":"NOLREDE FC","cartola":"Ederlon Ferra Correi","escudo":"https://s2-cartola.glbimg.com/pBlNHTgYJFIRUXAdDueJ5iiCHA8=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_2/escudo/ee/08/25/001298a84a-34e6-4df9-bf51-d64e4edbbeee20260117150825"},{"id":26119120,"nome":"atleticoBangu.fc","cartola":"Diego Martins","escudo":"https://s2-cartola.glbimg.com/omzFtjiJ4YC77H7bO_q0kg6nTb4=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/73/33/10/00a1598363-4257-4588-b6b1-47b45711f07320260122183310"},{"id":50793123,"nome":"ROMANOS XII","cartola":"Ruah","escudo":"https://s2-cartola.glbimg.com/5DVK2vnWwFbKIpEk3f2CtJPD3pg=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/12/19/33/00d0225667-46ca-4612-8d1f-f51c9261901220260123171933"},{"id":51058849,"nome":"Changa_Veia","cartola":"Rodrigo C da Silva","escudo":"https://s2-cartola.glbimg.com/NOaEyrg43vNUzhhZAMZ2T4Y9YmA=/https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/cartola_assets_3/escudo/94/35/15/00fb4d2ed9-d98d-4a9d-ad29-4b1bd780a79420260127203515"}],"grupos":{"A":[13966613,13258912,373462,51058849],"B":[16434861,13940832,2383356,2373025],"C":[4455883,51023478,4253291,26332741],"D":[6335880,49516202,14859081,8082561],"E":[23976307,189153,7057462,47785835],"F":[26119120,5173098,8043,44808797],"G":[13956019,10466098,5002468,49349829],"H":[298158,1763729,50793123,4108689]},"turnoUnico":[[[16,1],[2,15],[3,14],[4,13],[5,12],[6,11],[7,10],[8,9]],[[2,16],[3,1],[4,15],[5,14],[6,13],[7,12],[8,11],[9,10]],[[16,3],[4,2],[5,1],[6,15],[7,14],[8,13],[9,12],[10,11]],[[4,16],[5,3],[6,2],[7,1],[8,15],[9,14],[10,13],[11,12]],[[16,5],[6,4],[7,3],[8,2],[9,1],[10,15],[11,14],[12,13]],[[6,16],[7,5],[8,4],[9,3],[10,2],[11,1],[12,15],[13,14]],[[16,7],[8,6],[9,5],[10,4],[11,3],[12,2],[13,1],[14,15]],[[8,16],[9,7],[10,6],[11,5],[12,4],[13,3],[14,2],[15,1]],[[16,9],[10,8],[11,7],[12,6],[13,5],[14,4],[15,3],[1,2]],[[10,16],[11,9],[12,8],[13,7],[14,6],[15,5],[1,4],[2,3]],[[16,11],[12,10],[13,9],[14,8],[15,7],[1,6],[2,5],[3,4]],[[12,16],[13,11],[14,10],[15,9],[1,8],[2,7],[3,6],[4,5]],[[16,13],[14,12],[15,11],[1,10],[2,9],[3,8],[4,7],[5,6]],[[14,16],[15,13],[1,12],[2,11],[3,10],[4,9],[5,8],[6,7]],[[16,15],[1,14],[2,13],[3,12],[4,11],[5,10],[6,9],[7,8]]],"ordem":{"hardReset":[2383356,26119120,5002468,7057462,16434861,10466098,51023478,1763729,4455883,4253291,23976307,13940832,26332741,50793123,13966613,189153],"backup":[47785835,51058849,5173098,4108689,298158,14859081,373462,49516202,13956019,2373025,8043,49349829,6335880,44808797,13258912,8082561]},"premios":{"bootcamp":[50,50,25,25],"copa":[400,200,100,50],"resta1":[100,50],"hardReset":[300,200,100,50],"backup":[250,150,100,50],"finalBoss":[150,100,50,25],"supremo":[200],"overdrive":[200]},"desempates":{},"pontuacoes":{"1":{"26119120":98.25,"6335880":86.46,"49516202":85.66,"23976307":84.86,"8082561":75.0,"4455883":74.06,"5002468":73.06,"26332741":71.0,"298158":70.76,"373462":69.62,"7057462":68.61,"13258912":68.41,"16434861":66.2,"51058849":63.9,"13966613":63.36,"44808797":63.22,"10466098":62.95,"2383356":61.56,"50793123":58.26,"1763729":57.11,"14859081":56.2,"13940832":56.0,"13956019":55.06,"49349829":52.94,"47785835":50.5,"8043":46.26,"5173098":45.56,"189153":44.91,"51023478":38.62,"4108689":31.62,"2373025":0.0,"4253291":0.0},"2":{"6335880":94.8,"23976307":92.38,"16434861":96.4,"26119120":59.57,"8082561":77.1,"2383356":87.78,"4455883":74.58,"13966613":83.48,"7057462":76.4,"298158":72.0,"13956019":86.58,"373462":70.63,"49516202":48.8,"50793123":72.08,"13258912":57.78,"10466098":62.98,"49349829":71.37,"26332741":51.5,"14859081":65.18,"5002468":47.88,"13940832":63.98,"1763729":62.28,"189153":71.14,"5173098":68.18,"51023478":74.88,"44808797":47.24,"8043":57.4,"4108689":69.24,"4253291":97.58,"51058849":33.15,"47785835":32.04,"2373025":44.64},"3":{"6335880":89.49,"26119120":105.34,"23976307":84.56,"4455883":89.86,"16434861":74.86,"8082561":77.96,"49516202":95.26,"13966613":80.16,"7057462":79.79,"2383356":74.16,"298158":80.56,"13956019":80.84,"10466098":86.31,"189153":95.56,"13258912":84.76,"13940832":87.26,"50793123":74.55,"373462":61.09,"5002468":80.26,"1763729":80.1,"5173098":82.14,"51023478":81.24,"4253291":95.76,"14859081":70.04,"26332741":63.56,"4108689":72.56,"49349829":47.05,"8043":62.06,"44808797":49.26,"51058849":52.95,"47785835":38.85,"2373025":66.34},"4":{"26119120":102.26,"23976307":98.5,"6335880":84.18,"4455883":88.36,"16434861":79.55,"13956019":92.95,"298158":76.85,"13966613":71.45,"189153":76.78,"49516202":53.55,"13258912":63.75,"373462":72.25,"2383356":45.05,"8082561":36.45,"14859081":74.75,"51023478":71.21,"5173098":68.75,"10466098":50.78,"1763729":61.73,"13940832":49.88,"7057462":28.33,"50793123":39.7,"4253291":46.9,"8043":73.25,"5002468":29.15,"4108689":50.45,"26332741":32.15,"49349829":44.91,"51058849":57.75,"44808797":25.16,"2373025":59.1,"47785835":11.23},"5":{"26119120":84.04,"23976307":72.62,"6335880":77.22,"4455883":102.62,"16434861":100.22,"13956019":81.19,"13966613":78.12,"298158":72.17,"13258912":96.12,"49516202":72.4,"51023478":89.17,"10466098":90.37,"189153":60.84,"5173098":77.42,"13940832":84.31,"1763729":77.14,"373462":63.11,"50793123":91.02,"14859081":67.31,"4253291":88.62,"2383356":56.22,"7057462":62.34,"8043":75.61,"5002468":82.52,"8082561":45.2,"4108689":66.52,"26332741":62.12,"51058849":68.7,"49349829":32.02,"2373025":59.19,"44808797":29.09,"47785835":22.5},"6":{"26119120":80.21,"6335880":82.79,"4455883":76.11,"23976307":70.61,"16434861":68.61,"298158":79.05,"13966613":73.61,"13956019":50.85,"13258912":59.82,"49516202":71.06,"10466098":60.95,"1763729":69.8,"5173098":63.01,"373462":66.61,"189153":52.85,"51023478":44.29,"5002468":85.31,"4253291":67.45,"8043":80.22,"14859081":58.27,"13940832":50.28,"50793123":54.79,"7057462":63.34,"2383356":45.09,"4108689":78.11,"8082561":51.76,"26332741":69.89,"49349829":74.91,"51058849":46.05,"2373025":82.9,"44808797":59.96,"47785835":50.38},"7":{"26119120":76.57,"6335880":81.57,"16434861":107.17,"23976307":79.87,"4455883":76.66,"298158":83.41,"13956019":74.32,"49516202":87.37,"13966613":48.01,"10466098":77.67,"13258912":53.22,"1763729":71.02,"13940832":78.66,"51023478":70.67,"14859081":75.37,"4253291":69.81,"5002468":66.16,"8043":69.37,"189153":61.47,"5173098":57.67,"373462":56.67,"50793123":56.77,"2383356":73.37,"4108689":57.67,"7057462":46.67,"8082561":33.02,"26332741":44.47,"51058849":57.11,"49349829":46.57,"2373025":50.67,"44808797":63.22,"47785835":51.54},"8":{"26119120":76.65,"6335880":80.9,"16434861":78.2,"23976307":83.9,"4455883":85.02,"298158":75.45,"13956019":78.45,"49516202":74.05,"13966613":66.35,"1763729":83.45,"13258912":78.55,"10466098":69.85,"13940832":82.97,"51023478":78.8,"14859081":79.48,"373462":85.95,"8043":77.65,"4253291":74.4,"5002468":72.45,"189153":65.9,"5173098":61.55,"2383356":76.95,"50793123":66.68,"7057462":85.4,"4108689":54.7,"8082561":73.15,"26332741":54.26,"2373025":72.16,"49349829":58.4,"51058849":44.12,"44808797":71.55,"47785835":19.1},"9":{"6335880":101.66,"26119120":68.55,"23976307":83.16,"4455883":79.28,"16434861":68.44,"13956019":98.96,"298158":80.38,"49516202":87.44,"13258912":96.38,"4253291":103.38,"14859081":97.04,"13966613":74.58,"1763729":72.31,"189153":90.03,"51023478":70.56,"8043":74.86,"10466098":49.88,"373462":62.78,"5173098":81.28,"13940832":51.24,"50793123":85.68,"2383356":73.18,"7057462":78.28,"5002468":37.4,"8082561":89.61,"4108689":60.79,"26332741":74.68,"2373025":64.88,"51058849":55.47,"49349829":45.28,"44808797":48.0,"47785835":55.9},"10":{"6335880":69.47,"23976307":60.57,"26119120":37.64,"4455883":42.19,"16434861":47.99,"13956019":60.32,"298158":49.47,"49516202":58.07,"13258912":55.59,"4253291":68.75,"13966613":66.77,"373462":74.1,"189153":57.22,"14859081":32.67,"51023478":56.18,"1763729":38.17,"10466098":53.75,"8043":46.89,"50793123":51.89,"2383356":50.58,"13940832":37.57,"5173098":36.37,"5002468":56.89,"8082561":58.77,"7057462":8.6,"4108689":50.77,"26332741":59.88,"2373025":70.88,"51058849":43.69,"44808797":45.95,"49349829":14.35,"47785835":12.35},"11":{"6335880":94.01,"23976307":98.76,"16434861":97.78,"4455883":83.46,"26119120":70.16,"13956019":93.96,"298158":79.01,"49516202":75.21,"13258912":88.46,"4253291":85.66,"13966613":78.96,"373462":94.66,"8043":110.86,"51023478":88.96,"14859081":86.33,"10466098":80.56,"50793123":94.56,"13940832":100.76,"1763729":68.86,"189153":62.11,"2383356":92.76,"5002468":104.86,"5173098":92.28,"8082561":71.53,"4108689":86.93,"7057462":71.43,"26332741":52.99,"2373025":33.75,"51058849":80.36,"49349829":86.06,"44808797":57.05,"47785835":40.65},"12":{"6335880":82.95,"23976307":89.1,"4455883":121.33,"16434861":81.1,"26119120":81.1,"13956019":69.25,"298158":62.55,"13258912":78.2,"49516202":61.6,"4253291":69.2,"8043":90.5,"13966613":77.95,"10466098":104.37,"51023478":80.6,"373462":65.35,"14859081":77.79,"1763729":96.2,"13940832":93.4,"2383356":92.6,"50793123":82.3,"189153":80.15,"5002468":82.6,"5173098":65.8,"8082561":89.99,"4108689":82.85,"26332741":100.97,"7057462":51.25,"2373025":81.54,"51058849":62.75,"49349829":72.68,"44808797":42.65,"47785835":41.25},"13":{"6335880":140.49,"23976307":120.59,"4455883":121.54,"16434861":124.39,"26119120":109.74,"13956019":123.49,"13258912":119.39,"298158":103.39,"4253291":102.54,"49516202":97.49,"8043":101.54,"10466098":114.79,"13966613":98.09,"1763729":111.19,"51023478":101.19,"373462":100.04,"189153":114.79,"50793123":105.29,"13940832":96.59,"5002468":112.04,"2383356":91.59,"14859081":66.13,"5173098":103.44,"4108689":86.02,"8082561":67.33,"26332741":100.24,"7057462":73.49,"2373025":48.65,"51058849":68.54,"49349829":72.84,"44808797":51.5,"47785835":21.9},"14":{"6335880":51.58,"4455883":62.88,"23976307":57.68,"16434861":47.55,"13956019":59.25,"26119120":54.45,"13258912":67.53,"298158":81.88,"4253291":61.74,"49516202":63.45,"8043":62.35,"13966613":64.55,"10466098":52.56,"373462":73.38,"51023478":67.35,"189153":70.98,"5002468":69.78,"1763729":50.74,"13940832":66.94,"50793123":56.38,"2383356":63.98,"5173098":70.24,"14859081":56.84,"26332741":74.94,"4108689":50.04,"8082561":44.93,"7057462":71.88,"51058849":83.68,"2373025":59.63,"49349829":43.46,"44808797":57.65,"47785835":42.95},"15":{"6335880":53.85,"4455883":51.95,"23976307":37.83,"16434861":63.17,"13956019":58.5,"26119120":57.25,"13258912":62.57,"298158":59.33,"8043":73.47,"13966613":65.87,"10466098":58.52,"4253291":43.2,"49516202":34.63,"5002468":65.23,"373462":49.22,"189153":59.85,"51023478":49.92,"1763729":49.95,"13940832":49.02,"50793123":48.33,"5173098":60.85,"2383356":46.63,"14859081":67.14,"26332741":57.4,"4108689":32.12,"7057462":61.75,"8082561":34.2,"2373025":83.75,"51058849":33.52,"49349829":48.05,"44808797":25.08,"47785835":25.5},"16":{"51058849":114.0,"26332741":99.7,"16434861":96.28,"8043":94.88,"6335880":94.83,"13966613":93.83,"14859081":89.9,"2383356":88.29,"4108689":82.9,"50793123":82.59,"13258912":81.24,"49516202":80.18,"23976307":79.39,"4455883":74.59,"13956019":73.39,"298158":71.9,"51023478":70.8,"189153":70.1,"7057462":69.05,"13940832":68.6,"10466098":68.6,"49349829":66.44,"5173098":64.44,"26119120":62.0,"4253291":58.25,"373462":51.89,"1763729":50.74,"44808797":45.7,"2373025":43.05,"8082561":42.91,"5002468":37.13,"47785835":10.95},"17":{"6335880":63.92,"4455883":86.92,"16434861":72.42,"23976307":67.52,"13956019":66.72,"26119120":70.42,"8043":83.32,"298158":79.52,"13966613":75.92,"13258912":29.55,"189153":88.42,"49516202":72.16,"50793123":96.32,"10466098":70.01,"4253291":76.67,"373462":82.72,"2383356":74.12,"13940832":73.71,"1763729":87.95,"51023478":53.42,"5002468":70.37,"5173098":73.82,"26332741":83.25,"14859081":32.41,"4108689":68.52,"7057462":49.0,"51058849":72.22,"8082561":55.45,"2373025":83.75,"49349829":61.01,"44808797":41.85,"47785835":45.7},"18":{"13258912":131.9,"13956019":131.43,"2373025":123.9,"2383356":122.9,"50793123":122.9,"10466098":118.9,"373462":118.55,"16434861":116.1,"4455883":110.8,"8043":107.9,"6335880":106.9,"23976307":106.6,"13940832":105.65,"1763729":103.25,"51058849":102.1,"26332741":101.7,"51023478":99.35,"13966613":98.85,"26119120":97.55,"4108689":96.05,"298158":95.61,"189153":90.57,"4253291":87.49,"7057462":81.9,"49516202":73.83,"49349829":71.35,"5173098":70.64,"14859081":51.15,"5002468":47.64,"44808797":34.55,"8082561":32.67,"47785835":21.8},"19":{"6335880":130.68,"16434861":134.48,"4455883":113.68,"23976307":129.18,"13956019":121.98,"8043":125.73,"26119120":107.78,"13258912":122.08,"298158":117.73,"50793123":134.58,"13966613":113.88,"10466098":115.48,"373462":123.13,"189153":116.44,"2383356":110.68,"13940832":122.44,"51023478":121.98,"1763729":103.97,"49516202":99.08,"4253291":58.45,"26332741":99.57,"5002468":122.18,"5173098":52.35,"14859081":58.94,"4108689":81.47,"2373025":97.43,"7057462":69.27,"51058849":42.94,"8082561":23.0,"49349829":38.3,"44808797":20.2,"47785835":15.9},"20":{"4455883":125.23,"23976307":122.61,"5002468":118.81,"373462":115.61,"189153":113.21,"50793123":108.11,"16434861":107.13,"13966613":106.91,"51023478":105.91,"2383356":104.81,"1763729":104.81,"8043":103.33,"6335880":99.96,"13956019":99.83,"26119120":97.52,"4108689":93.67,"26332741":92.41,"5173098":90.45,"298158":88.81,"4253291":86.76,"13258912":83.71,"14859081":78.22,"13940832":77.16,"49349829":66.01,"2373025":64.36,"49516202":61.36,"7057462":58.45,"51058849":55.22,"10466098":54.68,"8082561":31.13,"47785835":24.5,"44808797":18.18},"21":{"6335880":97.23,"16434861":81.0,"23976307":83.6,"4455883":61.31,"13956019":81.35,"8043":76.45,"50793123":96.26,"13966613":85.45,"13258912":82.36,"26119120":50.08,"298158":56.55,"2383356":94.21,"189153":79.79,"373462":63.96,"51023478":79.49,"13940832":88.13,"1763729":82.98,"10466098":50.69,"5002468":72.25,"49516202":71.18,"4253291":72.63,"26332741":64.09,"5173098":38.75,"4108689":67.63,"14859081":58.58,"2373025":72.66,"7057462":75.75,"51058849":20.48,"49349829":45.54,"8082561":21.96,"44808797":58.66,"47785835":11.4},"22":{"6335880":83.31,"16434861":79.91,"23976307":81.71,"4455883":68.21,"13956019":78.81,"8043":76.91,"50793123":83.31,"13966613":86.41,"26119120":84.16,"2383356":83.31,"13258912":41.2,"373462":75.71,"189153":69.31,"298158":32.6,"51023478":64.86,"13940832":73.21,"1763729":68.8,"10466098":80.61,"5002468":89.16,"4253291":75.0,"26332741":64.41,"49516202":37.31,"4108689":75.31,"5173098":59.51,"14859081":48.71,"7057462":87.0,"2373025":45.54,"51058849":76.04,"49349829":44.4,"8082561":28.55,"44808797":36.09,"47785835":36.9},"23":{"6335880":70.57,"16434861":73.35,"4455883":74.05,"23976307":58.95,"13956019":52.77,"50793123":76.9,"8043":49.05,"13966613":49.27,"26119120":47.03,"2383356":55.24,"373462":65.97,"13258912":47.15,"51023478":71.92,"298158":61.77,"189153":31.27,"13940832":60.45,"1763729":58.07,"10466098":74.77,"5002468":75.57,"26332741":89.71,"4253291":48.91,"49516202":59.38,"4108689":57.54,"5173098":47.4,"14859081":61.73,"7057462":69.1,"2373025":67.81,"51058849":75.64,"49349829":74.61,"8082561":23.1,"44808797":50.42,"47785835":36.1},"24":{"6335880":102.92,"16434861":138.07,"23976307":134.57,"4455883":99.42,"13956019":110.38,"50793123":115.47,"8043":115.47,"26119120":135.39,"13966613":97.72,"2383356":115.47,"373462":100.82,"13940832":130.02,"189153":120.37,"51023478":110.47,"13258912":86.09,"10466098":108.8,"1763729":108.17,"298158":66.28,"5002468":88.5,"26332741":115.52,"49516202":93.37,"4253291":62.34,"4108689":116.27,"5173098":80.44,"14859081":97.27,"2373025":104.35,"7057462":88.7,"51058849":95.08,"49349829":109.41,"8082561":32.81,"44808797":81.8,"47785835":31.9},"25":{"6335880":105.13,"16434861":98.33,"23976307":112.03,"4455883":94.83,"50793123":108.23,"13956019":64.49,"8043":84.8,"13966613":108.25,"26119120":84.33,"2383356":108.23,"189153":93.99,"51023478":94.37,"13940832":82.28,"13258912":85.68,"1763729":96.23,"373462":50.0,"10466098":92.45,"5002468":113.58,"298158":102.28,"26332741":79.09,"4253291":77.85,"49516202":63.44,"4108689":79.33,"5173098":82.0,"2373025":100.7,"14859081":68.29,"7057462":79.9,"51058849":82.34,"49349829":70.44,"8082561":13.9,"44808797":77.54,"47785835":19.55},"26":{"6335880":101.65,"16434861":99.5,"23976307":93.3,"4455883":108.65,"50793123":105.05,"13956019":74.81,"8043":95.51,"13966613":93.11,"2383356":105.05,"26119120":79.8,"189153":100.01,"13940832":95.31,"13258912":90.31,"5002468":110.36,"1763729":87.76,"51023478":64.21,"298158":99.56,"373462":81.64,"10466098":75.19,"26332741":75.6,"4108689":116.45,"4253291":82.03,"49516202":69.25,"2373025":90.7,"5173098":69.11,"14859081":53.95,"7057462":73.26,"51058849":83.8,"49349829":55.26,"8082561":45.04,"44808797":32.13,"47785835":63.3},"27":{"6335880":86.25,"16434861":77.94,"23976307":74.94,"4455883":52.19,"50793123":73.69,"13956019":71.59,"8043":65.19,"2383356":73.69,"13966613":52.49,"26119120":74.34,"189153":49.9,"13940832":53.49,"5002468":65.69,"51023478":76.21,"373462":75.55,"1763729":66.02,"13258912":53.3,"10466098":76.2,"298158":62.69,"26332741":65.79,"4108689":86.74,"4253291":34.85,"49516202":46.79,"5173098":75.35,"7057462":87.79,"2373025":27.09,"14859081":57.51,"51058849":47.61,"49349829":48.64,"8082561":48.19,"44808797":64.79,"47785835":20.5},"28":{"6335880":80.57,"16434861":100.37,"23976307":96.87,"4455883":80.17,"50793123":67.37,"13956019":94.57,"8043":74.97,"26119120":94.57,"2383356":67.37,"13966613":76.27,"189153":93.67,"51023478":94.02,"13940832":81.87,"10466098":97.67,"373462":88.97,"1763729":86.37,"5002468":72.87,"13258912":82.47,"298158":83.12,"26332741":67.17,"4108689":71.87,"49516202":51.87,"5173098":103.05,"4253291":35.78,"7057462":89.57,"2373025":70.87,"14859081":59.1,"51058849":56.5,"49349829":68.52,"8082561":37.47,"44808797":33.01,"47785835":32.3},"29":{"6335880":91.96,"16434861":100.46,"23976307":92.26,"4455883":130.56,"50793123":97.86,"13956019":77.16,"26119120":103.16,"8043":91.17,"13966613":109.01,"2383356":97.86,"51023478":123.88,"10466098":120.81,"189153":96.56,"1763729":118.72,"13940832":110.16,"13258912":116.87,"373462":98.96,"5002468":96.72,"298158":42.77,"26332741":93.44,"4108689":108.16,"5173098":107.84,"49516202":62.71,"4253291":68.23,"7057462":91.77,"2373025":95.34,"14859081":64.94,"51058849":102.09,"49349829":71.07,"44808797":91.45,"8082561":59.06,"47785835":39.25},"30":{"16434861":114.73,"6335880":103.53,"23976307":110.93,"4455883":107.83,"50793123":98.23,"13956019":105.94,"8043":105.63,"2383356":98.23,"13966613":90.08,"1763729":123.54,"10466098":111.43,"26119120":39.96,"189153":92.43,"13940832":96.73,"13258912":92.43,"373462":94.53,"5002468":103.18,"51023478":50.72,"298158":115.83,"26332741":102.68,"4108689":96.58,"5173098":93.23,"4253291":66.61,"49516202":55.47,"7057462":62.87,"2373025":32.6,"51058849":104.53,"14859081":49.65,"49349829":55.06,"8082561":56.57,"44808797":32.2,"47785835":58.45},"31":{"6335880":88.09,"16434861":86.99,"23976307":85.19,"4455883":75.29,"50793123":83.44,"13956019":101.74,"8043":94.84,"13966613":95.44,"2383356":83.44,"1763729":91.09,"10466098":92.94,"26119120":90.11,"13258912":115.35,"13940832":98.94,"189153":83.81,"373462":96.59,"51023478":100.68,"5002468":93.69,"298158":86.99,"26332741":89.41,"4108689":68.71,"5173098":79.14,"4253291":91.54,"7057462":72.74,"49516202":67.34,"51058849":89.89,"2373025":37.58,"14859081":60.48,"49349829":82.05,"8082561":60.05,"44808797":47.4,"47785835":57.95}}}</script>
+<script>
+"use strict";
+// Fonte original da página (usada para gerar o HTML atualizado com os dados embutidos)
+const SOURCE = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+const BASE = JSON.parse(document.getElementById("liga-dados").textContent);
+const LS_KEY = "ligaReset:" + BASE.temporada;
+const TOTAL_RODADAS = 38;
+
+/* ---------------- regras fixas do formato ---------------- */
+// Fase de grupos (rodadas 6–11): posições 0..3 = pote 1..4
+const GT = [[[0,1],[2,3]],[[1,2],[3,0]],[[0,2],[1,3]],[[2,0],[3,1]],[[0,3],[2,1]],[[1,0],[3,2]]];
+// Oitavas: 1º do grupo x 2º do grupo
+const OITAVAS = [["A","B"],["C","D"],["E","F"],["G","H"],["B","A"],["D","C"],["F","E"],["H","G"]];
+const COLL = new Intl.Collator("pt-BR", {sensitivity:"base"});
+const c2 = x => Math.round(x * 100);
+
+/* ---------------- dados locais (alterações ainda não gravadas no arquivo) ---------------- */
+function loadLocal(){
+  try { const v = JSON.parse(localStorage.getItem(LS_KEY)); if (v && typeof v === "object") return {pontuacoes:v.pontuacoes||{}, desempates:v.desempates||{}}; } catch(e){}
+  return {pontuacoes:{}, desempates:{}};
+}
+function saveLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(LOCAL)); } catch(e){ toast("Não foi possível salvar no navegador"); } }
+let LOCAL = loadLocal();
+let D, M;
+function merge(){
+  D = JSON.parse(JSON.stringify(BASE));
+  D.pontuacoes = D.pontuacoes || {};
+  D.desempates = D.desempates || {};
+  for (const [r, v] of Object.entries(LOCAL.pontuacoes)) { if (v === null) delete D.pontuacoes[r]; else D.pontuacoes[r] = v; }
+  for (const [k, v] of Object.entries(LOCAL.desempates)) { if (v === null) delete D.desempates[k]; else D.desempates[k] = v; }
+}
+function localCount(){ return Object.keys(LOCAL.pontuacoes).length + Object.keys(LOCAL.desempates).length; }
+
+/* ---------------- motor de cálculo ---------------- */
+function compute(D){
+  const T = new Map(D.times.map(t => [t.id, t]));
+  const SC = D.pontuacoes;
+  const dz = D.desempates;
+  const has = r => !!SC[r] && Object.keys(SC[r]).length > 0;
+  const P = (r, id) => { const m = SC[r]; if (!m || id == null) return null; const v = m[id]; return v == null ? null : +v; };
+  const rounds = Object.keys(SC).map(Number).filter(has).sort((a,b) => a-b);
+  const last = rounds.length ? rounds[rounds.length-1] : 0;
+  const nm = id => (T.get(id) || {}).nome || String(id);
+  const ties = [];
+  const pref = (key) => (a, b) => { const z = dz[key]; return a === z ? -1 : b === z ? 1 : 0; };
+  const allHave = (a, b) => { for (let r = a; r <= b; r++) if (!has(r)) return false; return true; };
+
+  const mk = (r, h, a) => {
+    const m = {r, h, a, hp: P(r,h), ap: P(r,a), res: null};
+    if (m.hp != null && m.ap != null) { const d = c2(m.hp) - c2(m.ap); m.res = d > 0 ? "H" : d < 0 ? "A" : "E"; }
+    return m;
+  };
+  function table(ids, matches, tb){
+    const s = new Map(ids.map(id => [id, {id, J:0, V:0, E:0, D:0, PG:0, GP:0, GC:0}]));
+    for (const m of matches){
+      if (!m.res) continue;
+      const H = s.get(m.h), A = s.get(m.a);
+      H.J++; A.J++; H.GP += m.hp; H.GC += m.ap; A.GP += m.ap; A.GC += m.hp;
+      if (m.res === "H"){ H.V++; A.D++; H.PG += 3; } else if (m.res === "A"){ A.V++; H.D++; A.PG += 3; } else { H.E++; A.E++; H.PG++; A.PG++; }
+    }
+    const arr = [...s.values()];
+    arr.forEach(x => { x.SG = x.GP - x.GC; x.pct = x.J ? x.PG / (x.J*3) : 0; });
+    arr.sort((a,b) => b.PG-a.PG || b.V-a.V || c2(b.SG)-c2(a.SG) || c2(b.GP)-c2(a.GP) || tb(a.id)-tb(b.id));
+    arr.forEach((x,i) => x.pos = i+1);
+    return arr;
+  }
+  function rankSum(a, b, key, label, prizes, done){
+    const rows = D.times.map(t => { let s = 0, n = 0; for (let r = a; r <= b; r++){ const v = P(r,t.id); if (v != null){ s += v; n++; } } return {id:t.id, pts:s, n}; });
+    const pf = pref(key);
+    rows.sort((x,y) => c2(y.pts)-c2(x.pts) || pf(x.id,y.id) || COLL.compare(nm(x.id), nm(y.id)));
+    rows.forEach((x,i) => x.pos = i+1);
+    if (done) for (let i = 0; i < prizes && i+1 < rows.length; i++){
+      if (c2(rows[i].pts) === c2(rows[i+1].pts)){
+        ties.push({key, label, options: rows.filter(x => c2(x.pts) === c2(rows[i].pts)).map(x => x.id), chosen: dz[key] ?? null});
+        break;
+      }
+    }
+    return rows;
+  }
+  function leg2(key, label, a, b, r1, r2){
+    const m = {key, label, a, b, r1, r2, a1:P(r1,a), b1:P(r1,b), a2:P(r2,a), b2:P(r2,b), w:null, l:null};
+    if (a == null || b == null) return m;
+    if (m.a1 != null && m.b1 != null){ m.aggA = m.a1 + (m.a2 ?? 0); m.aggB = m.b1 + (m.b2 ?? 0); }
+    if ([m.a1,m.b1,m.a2,m.b2].every(v => v != null)){
+      const d = c2(m.aggA) - c2(m.aggB);
+      if (d > 0){ m.w = a; m.l = b; }
+      else if (d < 0){ m.w = b; m.l = a; }
+      else {
+        m.tie = true; const z = dz[key];
+        ties.push({key, label: label + " — agregado empatado", options:[a,b], chosen: z ?? null});
+        if (z === a || z === b){ m.w = z; m.l = z === a ? b : a; }
+      }
+    }
+    return m;
+  }
+
+  /* Bootcamp (1–5) */
+  const boot = {done: allHave(1,5)};
+  boot.table = rankSum(1, 5, "bootcamp", "Bootcamp — empate na zona de premiação", D.premios.bootcamp.length, boot.done);
+  const bootRank = new Map(boot.table.map(x => [x.id, x.pos]));
+
+  /* Copa Reset — fase de grupos (6–11) */
+  const grupos = Object.entries(D.grupos).map(([L, ids]) => {
+    const matches = GT.flatMap((pairs, i) => pairs.map(([x,y]) => mk(6+i, ids[x], ids[y])));
+    const tab = table(ids, matches, id => bootRank.get(id) || 99);
+    const done = matches.every(m => m.res);
+    return {L, ids, matches, table: tab, done};
+  });
+  const gDone = grupos.every(g => g.done);
+  const first = {}, second = {};
+  grupos.forEach(g => { if (g.done){ first[g.L] = g.table[0].id; second[g.L] = g.table[1].id; } });
+
+  /* Copa Reset — mata-mata */
+  const J = {};
+  OITAVAS.forEach(([x,y], i) => { J[i+1] = leg2("copa-j"+(i+1), "Copa Reset · Oitavas · Jogo "+(i+1), first[x] ?? null, second[y] ?? null, 12, 13); J[i+1].seedA = "1º "+x; J[i+1].seedB = "2º "+y; });
+  [[9,3,4],[10,1,2],[11,7,8],[12,5,6]].forEach(([n,a,b]) => { J[n] = leg2("copa-j"+n, "Copa Reset · Quartas · Jogo "+n, J[a].w, J[b].w, 14, 15); J[n].seedA = "Venc. J"+a; J[n].seedB = "Venc. J"+b; });
+  [[13,9,10],[14,11,12]].forEach(([n,a,b]) => { J[n] = leg2("copa-j"+n, "Copa Reset · Semifinal · Jogo "+n, J[a].w, J[b].w, 16, 17); J[n].seedA = "Venc. J"+a; J[n].seedB = "Venc. J"+b; });
+  J[15] = leg2("copa-j15", "Copa Reset · Final", J[13].w, J[14].w, 18, 19); J[15].seedA = "Venc. J13"; J[15].seedB = "Venc. J14";
+  J[16] = leg2("copa-j16", "Copa Reset · 3º lugar", J[13].l, J[14].l, 18, 19); J[16].seedA = "Perd. J13"; J[16].seedB = "Perd. J14";
+  const copa = {grupos, gDone, J, podium:[J[15].w, J[15].l, J[16].w, J[16].l], done: !!(J[15].w && J[16].w)};
+  const oitavasDone = [1,2,3,4,5,6,7,8].every(n => J[n].w);
+
+  /* Resta 1 (12–19) */
+  const r1 = {participants: [], rounds: [], elim: [], champion: null, aliveAfter: {}};
+  if (gDone){
+    r1.participants = grupos.flatMap(g => [g.table[2].id, g.table[3].id]);
+    let alive = [...r1.participants];
+    for (let r = 12; r <= 19 && alive.length > 1; r++){
+      if (!has(r)) break;
+      const key = "resta1-r"+r, pf = pref(key);
+      const n = alive.length === 2 ? 1 : 2;
+      const rows = alive.map(id => ({id, p: P(r,id) ?? 0, miss: P(r,id) == null}));
+      rows.sort((a,b) => c2(b.p)-c2(a.p) || pf(a.id,b.id) || COLL.compare(nm(a.id), nm(b.id)));
+      const cut = rows.length - n;
+      if (c2(rows[cut-1].p) === c2(rows[cut].p)){
+        ties.push({key, label:"Resta 1 · Rodada "+r+" — empate na zona de eliminação (escolha quem se salva)", options: rows.filter(x => c2(x.p) === c2(rows[cut].p)).map(x => x.id), chosen: dz[key] ?? null});
+      }
+      rows.forEach((x,i) => { x.out = i >= cut; x.rank = i+1; });
+      r1.rounds.push({r, rows});
+      rows.slice(cut).forEach(x => r1.elim.push({id:x.id, r, p:x.p}));
+      alive = rows.slice(0, cut).map(x => x.id);
+      r1.aliveAfter[r] = alive;
+    }
+    r1.alive = alive;
+    if (alive.length === 1) r1.champion = alive[0];
+    // ranking: vivos primeiro, depois eliminados da rodada mais recente para a mais antiga
+    const byR = {}; r1.elim.forEach(e => (byR[e.r] = byR[e.r] || []).push(e));
+    r1.ranking = [...alive.map(id => ({id, alive:true}))];
+    Object.keys(byR).map(Number).sort((a,b) => b-a).forEach(r => byR[r].forEach(e => r1.ranking.push({id:e.id, r, p:e.p})));
+  }
+  r1.done = !!r1.champion;
+  r1.vice = r1.done ? r1.ranking[1].id : null;
+
+  /* Hard Reset e Backup (20–34) */
+  function liga(key, ids, ordemFixa){
+    const L = {key, ids, started: ids.length === 16};
+    if (!L.started) return L;
+    let ord = ordemFixa && ordemFixa.length === 16 && ordemFixa.every(id => ids.includes(id)) ? ordemFixa.slice() : ids.slice().sort((a,b) => COLL.compare(nm(a), nm(b)));
+    L.ord = ord;
+    L.rounds = D.turnoUnico.map((pairs, i) => ({r: 20+i, matches: pairs.map(([x,y]) => mk(20+i, ord[x-1], ord[y-1]))}));
+    L.table = table(ord, L.rounds.flatMap(x => x.matches), id => ord.indexOf(id));
+    L.done = L.rounds.every(x => x.matches.every(m => m.res));
+    return L;
+  }
+  const r15 = r1.aliveAfter[15];
+  const formed = !!(r15 && oitavasDone);
+  const hrIds = formed ? [...r15, ...[1,2,3,4,5,6,7,8].map(n => J[n].w)] : [];
+  const bkIds = formed ? [...r1.elim.filter(e => e.r <= 15).map(e => e.id), ...[1,2,3,4,5,6,7,8].map(n => J[n].l)] : [];
+  const hr = liga("hardReset", hrIds, (D.ordem||{}).hardReset);
+  const bk = liga("backup", bkIds, (D.ordem||{}).backup);
+
+  /* Final Boss (35–38) */
+  const fb = {};
+  fb.s1 = leg2("fb-s1", "Final Boss · Semi 1", copa.done ? J[15].w : null, bk.done ? bk.table[0].id : null, 35, 36);
+  fb.s1.seedA = "Campeão Copa Reset"; fb.s1.seedB = "Campeão Backup";
+  fb.s2 = leg2("fb-s2", "Final Boss · Semi 2", r1.champion, hr.done ? hr.table[0].id : null, 35, 36);
+  fb.s2.seedA = "Campeão Resta 1"; fb.s2.seedB = "Campeão Hard Reset";
+  fb.f = leg2("fb-final", "Final Boss · Finalíssima", fb.s1.w, fb.s2.w, 37, 38); fb.f.seedA = "Venc. Semi 1"; fb.f.seedB = "Venc. Semi 2";
+  fb.t = leg2("fb-3", "Final Boss · 3º lugar", fb.s1.l, fb.s2.l, 37, 38); fb.t.seedA = "Perd. Semi 1"; fb.t.seedB = "Perd. Semi 2";
+  fb.done = !!(fb.f.w && fb.t.w);
+  fb.podium = [fb.f.w, fb.f.l, fb.t.w, fb.t.l];
+
+  /* Reset Supremo e Overdrive (1–38) */
+  const supDone = allHave(1, TOTAL_RODADAS);
+  const sup = {done: supDone, table: rankSum(1, TOTAL_RODADAS, "supremo", "Reset Supremo — empate no 1º lugar", 1, supDone)};
+  const all = [];
+  for (const r of rounds) for (const t of D.times){ const v = P(r, t.id); if (v != null) all.push({r, id:t.id, p:v}); }
+  const pfo = pref("overdrive");
+  all.sort((a,b) => c2(b.p)-c2(a.p) || pfo(a.id,b.id) || a.r-b.r);
+  const od = {done: supDone, top: all.slice(0, 15)};
+  if (supDone && all.length > 1 && c2(all[0].p) === c2(all[1].p) && all[0].id !== all[1].id)
+    ties.push({key:"overdrive", label:"Overdrive — empate na maior pontuação", options:[...new Set(all.filter(x => c2(x.p) === c2(all[0].p)).map(x => x.id))], chosen: dz.overdrive ?? null});
+
+  /* Premiação */
+  const PR = D.premios;
+  const pz = (vals, ids) => vals.map((v,i) => ({pos:i+1, id: ids[i] ?? null, v}));
+  const premiacao = [
+    {k:"bootcamp", nome:"Bootcamp", done: boot.done, rows: pz(PR.bootcamp, boot.table.map(x => x.id))},
+    {k:"copa", nome:"Copa Reset", done: copa.done, rows: pz(PR.copa, copa.podium)},
+    {k:"resta1", nome:"Resta 1", done: r1.done, rows: pz(PR.resta1, [r1.champion, r1.vice])},
+    {k:"hardReset", nome:"Hard Reset", done: !!hr.done, rows: pz(PR.hardReset, hr.started ? hr.table.map(x => x.id) : [])},
+    {k:"backup", nome:"Backup", done: !!bk.done, rows: pz(PR.backup, bk.started ? bk.table.map(x => x.id) : [])},
+    {k:"finalBoss", nome:"Final Boss", done: fb.done, rows: pz(PR.finalBoss, fb.podium)},
+    {k:"supremo", nome:"Reset Supremo", done: sup.done, rows: pz(PR.supremo, sup.table.map(x => x.id))},
+    {k:"overdrive", nome:"Overdrive", done: od.done, rows: pz(PR.overdrive, od.top.map(x => x.id))},
+  ];
+  const ganhos = new Map();
+  premiacao.filter(c => c.done).forEach(c => c.rows.forEach(x => { if (x.id != null) ganhos.set(x.id, (ganhos.get(x.id)||0) + x.v); }));
+
+  return {T, P, has, rounds, last, ties, boot, copa, r1, hr, bk, fb, sup, od, premiacao, ganhos, nm};
+}
+
+/* ---------------- utilidades de interface ---------------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = v => v == null ? "–" : (+v).toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtS = v => (v > 0 ? "+" : "") + fmt(v);
+const brl = v => (+v).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("on"), 2600); }
+function escudo(id, lg){
+  const t = M.T.get(id); if (!t) return "";
+  const ini = esc((t.nome.replace(/[^A-Za-zÀ-ÿ0-9]/g,"")[0] || "?").toUpperCase());
+  return `<span class="esc${lg ? " lg" : ""}">${ini}${t.escudo ? `<img src="${esc(t.escudo)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}</span>`;
+}
+function team(id, o = {}){
+  if (id == null) return `<span class="tbd">${esc(o.tbd || "A definir")}</span>`;
+  const t = M.T.get(id); if (!t) return esc(id);
+  return `<span class="team">${escudo(id, o.lg)}<span style="min-width:0"><span class="tn">${esc(t.nome)}</span>${o.cartola ? `<span class="tc">${esc(t.cartola)}</span>` : ""}</span></span>`;
+}
+const medal = p => `<span class="medal m${Math.min(p,4)}">${p}</span>`;
+function status(done, started, extra){
+  if (done) return `<span class="pill done">Encerrado</span>`;
+  if (started) return `<span class="pill live">${extra || "Em andamento"}</span>`;
+  return `<span class="pill">Aguardando</span>`;
+}
+document.addEventListener("error", e => { if (e.target && e.target.tagName === "IMG" && e.target.parentNode && e.target.parentNode.classList.contains("esc")) e.target.remove(); }, true);
+
+/* ---------------- componentes ---------------- */
+function matchRow(m){
+  const cls = side => !m.res ? "" : (m.res === "E" ? "" : (m.res === side ? "w" : "l"));
+  return `<div class="match">
+    <div class="h">${team(m.h)}</div>
+    <div class="sc ${cls("H")}">${fmt(m.hp)}</div><div class="x">x</div><div class="sc ${cls("A")}">${fmt(m.ap)}</div>
+    <div>${team(m.a)}</div></div>`;
+}
+function standings(rows, o = {}){
+  const zone = o.zone || (() => "");
+  return `<div class="tw"><table class="num"><thead><tr><th></th><th class="l">Time</th><th>PG</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th><th>GP</th>${o.pct ? "<th>%</th>" : ""}</tr></thead><tbody>
+  ${rows.map(x => `<tr class="${zone(x)}"><td class="pos">${x.pos}</td><td class="t">${team(x.id)}</td><td><b>${x.PG}</b></td><td>${x.J}</td><td>${x.V}</td><td>${x.E}</td><td>${x.D}</td><td>${fmtS(x.SG)}</td><td>${fmt(x.GP)}</td>${o.pct ? `<td>${Math.round(x.pct*100)}%</td>` : ""}</tr>`).join("")}
+  </tbody></table></div>`;
+}
+function mmCard(m, title){
+  const rodadas = `R${m.r1} · R${m.r2}`;
+  const row = (id, v1, v2, ag, seed) => {
+    const st = m.w == null ? "" : (m.w === id ? "win" : "lose");
+    return `<div class="mm-r ${st}"><span style="min-width:0">${team(id, {tbd: seed})}</span><span class="v">${fmt(v1)}</span><span class="v">${fmt(v2)}</span><span class="ag">${id == null || v1 == null ? "" : fmt(ag)}</span></div>`;
+  };
+  const note = m.tie && m.w == null ? `<div class="mm-note">Empate no agregado — defina o sorteio na aba Atualizar</div>` : (m.tie ? `<div class="mm-note">Decidido no sorteio</div>` : "");
+  return `<div class="mm"><div class="mm-h"><span>${esc(title)}</span><span>${rodadas}</span></div>
+    <div class="mm-lab"><span></span><span>Ida</span><span>Volta</span><span>Agreg.</span></div>
+    ${row(m.a, m.a1, m.a2, m.aggA, m.seedA)}${row(m.b, m.b1, m.b2, m.aggB, m.seedB)}${note}</div>`;
+}
+function roundSelector(name, from, to, cur){
+  let h = `<div class="rsel" data-rsel="${name}">`;
+  for (let r = from; r <= to; r++) h += `<button data-r="${r}" class="${r === cur ? "on" : ""} ${M.has(r) ? "" : "fut"}">${r}</button>`;
+  return h + "</div>";
+}
+const UI = {};
+function curRound(name, from, to){
+  if (UI[name] && UI[name] >= from && UI[name] <= to) return UI[name];
+  let r = from; for (let x = from; x <= to; x++) if (M.has(x)) r = x;
+  if (M.last >= from && M.last < to && !M.has(r)) r = M.last;
+  return r;
+}
+
+/* ---------------- telas ---------------- */
+const TABS = [
+  ["inicio","Início"],["bootcamp","Bootcamp"],["copa","Copa Reset"],["resta1","Resta 1"],
+  ["hardreset","Hard Reset"],["backup","Backup"],["finalboss","Final Boss"],["geral","Supremo & Overdrive"],
+  ["regras","Regras"],["atualizar","Atualizar dados"]
+];
+const V = {};
+
+V.inicio = () => {
+  const {boot, copa, r1, hr, bk, fb, sup, od} = M;
+  const lr = M.last;
+  const top = lr ? D.times.map(t => ({id:t.id, p:M.P(lr,t.id)})).filter(x => x.p != null).sort((a,b) => b.p-a.p) : [];
+  const card = (nome, rod, st, body) => `<div class="card comp"><div class="ttl"><b>${nome}</b><span class="muted small">R${rod}</span><span class="sp"></span>${st}</div>${body}</div>`;
+  const podium = ids => ids.map((id,i) => id == null ? "" : `<div class="who">${medal(i+1)}${team(id)}</div>`).join("") || `<span class="tbd">A definir</span>`;
+  const leader = (rows, n=3) => rows.slice(0,n).map(x => `<div class="who">${medal(x.pos)}${team(x.id)}<span class="sp"></span><span class="num muted">${x.PG != null ? x.PG+" pts" : fmt(x.pts)}</span></div>`).join("");
+  const copaPhase = copa.done ? "" : !copa.gDone ? "Fase de grupos" : !copa.J[8].w ? "Oitavas" : !copa.J[12].w ? "Quartas" : !copa.J[14].w ? "Semifinais" : "Final";
+  return `
+  <h1>${esc(D.nome)}</h1>
+  <p class="sub">${lr ? `Última rodada lançada: <b>${lr}</b> de ${TOTAL_RODADAS}` : "Nenhuma rodada lançada ainda"}${D.atualizadoEm ? ` · atualizado em ${new Date(D.atualizadoEm).toLocaleString("pt-BR", {dateStyle:"short", timeStyle:"short"})}` : ""}${localCount() ? ` · <span class="pill warn">${localCount()} alteração(ões) só neste navegador</span>` : ""}</p>
+  <div class="grid g3">
+    ${card("Bootcamp","1–5",status(boot.done, M.has(1)), boot.done ? podium(boot.table.slice(0,4).map(x => x.id)) : leader(boot.table.map(x => ({...x})),3))}
+    ${card("Copa Reset","6–19",status(copa.done, M.has(6), copaPhase), copa.done ? podium(copa.podium) : `<span class="muted">${copaPhase}</span>`)}
+    ${card("Resta 1","12–19",status(r1.done, r1.rounds.length > 0), r1.done ? podium([r1.champion, r1.vice]) : r1.rounds.length ? `<span class="muted">${r1.alive.length} times vivos</span>` : `<span class="tbd">Começa na rodada 12</span>`)}
+    ${card("Hard Reset","20–34",status(hr.done, hr.started && M.has(20), hr.started ? `Rodada ${Math.max(0, Math.min(15, M.last-19))}/15` : ""), hr.started ? (hr.done ? podium(hr.table.slice(0,4).map(x => x.id)) : leader(hr.table)) : `<span class="tbd">Aguardando classificados</span>`)}
+    ${card("Backup","20–34",status(bk.done, bk.started && M.has(20), bk.started ? `Rodada ${Math.max(0, Math.min(15, M.last-19))}/15` : ""), bk.started ? (bk.done ? podium(bk.table.slice(0,4).map(x => x.id)) : leader(bk.table)) : `<span class="tbd">Aguardando classificados</span>`)}
+    ${card("Final Boss","35–38",status(fb.done, M.has(35)), fb.done ? podium(fb.podium) : `<div class="small muted">Semi 1: ${team(fb.s1.a,{tbd:"Campeão Copa"})} x ${team(fb.s1.b,{tbd:"Campeão Backup"})}</div><div class="small muted">Semi 2: ${team(fb.s2.a,{tbd:"Campeão Resta 1"})} x ${team(fb.s2.b,{tbd:"Campeão Hard Reset"})}</div>`)}
+    ${card("Reset Supremo","1–38",status(sup.done, M.has(1)), leader(sup.table,3))}
+    ${card("Overdrive","1–38",status(od.done, M.has(1)), od.top.slice(0,3).map((x,i) => `<div class="who">${medal(i+1)}${team(x.id)}<span class="sp"></span><span class="num muted">${fmt(x.p)} · R${x.r}</span></div>`).join(""))}
+  </div>
+  ${lr ? `<div class="sec grid g2">
+    <div class="card"><h2>Destaques da rodada ${lr}</h2>
+      ${top.slice(0,5).map((x,i) => `<div class="row" style="padding:5px 0">${medal(i+1)}${team(x.id,{cartola:true})}<span class="sp"></span><b class="num">${fmt(x.p)}</b></div>`).join("")}
+      <details><summary>Ver todos os ${top.length}</summary>${top.slice(5).map((x,i) => `<div class="row" style="padding:4px 0"><span class="muted num" style="width:20px">${i+6}</span>${team(x.id)}<span class="sp"></span><span class="num">${fmt(x.p)}</span></div>`).join("")}</details>
+    </div>
+    <div class="card"><h2>Premiação</h2>${premiacaoTable()}</div>
+  </div>` : ""}`;
+};
+
+function premiacaoTable(){
+  const rows = M.premiacao.map(c => {
+    const st = c.done ? `<span class="pill done">Confirmado</span>` : `<span class="pill">Parcial</span>`;
+    return `<tr><td class="l" colspan="2" style="padding-top:12px"><b>${c.nome}</b> ${st}</td><td></td></tr>` +
+      c.rows.map(x => `<tr><td class="pos">${x.pos}º</td><td class="t">${x.id != null ? team(x.id) : `<span class="tbd">A definir</span>`}</td><td class="num">${brl(x.v)}</td></tr>`).join("");
+  }).join("");
+  const g = [...M.ganhos.entries()].sort((a,b) => b[1]-a[1]);
+  return `<div class="tw"><table><tbody>${rows}</tbody></table></div>
+    <details><summary>Ganhos confirmados por participante (${g.length})</summary><table class="num"><tbody>${g.map(([id,v]) => `<tr><td class="t">${team(id,{cartola:true})}</td><td>${brl(v)}</td></tr>`).join("")}</tbody></table></details>`;
+}
+
+V.bootcamp = () => {
+  const b = M.boot;
+  return `<h1>Bootcamp</h1><p class="sub">Rodadas 1 a 5 · cada um por si · os 8 melhores foram cabeças de chave da Copa Reset. ${status(b.done, M.has(1))}</p>
+  <div class="card"><div class="tw"><table class="num"><thead><tr><th></th><th class="l">Time</th>${[1,2,3,4,5].map(r => `<th>R${r}</th>`).join("")}<th>Total</th></tr></thead><tbody>
+  ${b.table.map(x => `<tr class="${x.pos <= 4 ? "z-g" : x.pos <= 8 ? "z-q" : ""}"><td class="pos">${x.pos}</td><td class="t">${team(x.id,{cartola:true})}</td>${[1,2,3,4,5].map(r => `<td class="muted">${fmt(M.P(r,x.id))}</td>`).join("")}<td><b>${fmt(x.pts)}</b></td></tr>`).join("")}
+  </tbody></table></div>
+  <div class="legend"><span><i style="background:var(--gold)"></i>Premiados (1º–4º)</span><span><i style="background:var(--win)"></i>Cabeças de chave (pote 1)</span></div></div>`;
+};
+
+V.copa = () => {
+  const c = M.copa, J = c.J;
+  const col = (t, ns) => `<div class="bcol"><h3>${t}</h3><div class="bc">${ns.map(n => mmCard(J[n], "Jogo "+n)).join("")}</div></div>`;
+  const bracket = `<div class="bracket">
+    ${col("Oitavas", [3,4,1,2,7,8,5,6])}
+    ${col("Quartas", [9,10,11,12])}
+    ${col("Semifinais", [13,14])}
+    <div class="bcol"><h3>Final</h3><div class="bc"><div>${mmCard(J[15],"Final")}<h3 style="margin:14px 0 8px">3º lugar</h3>${mmCard(J[16],"Disputa de 3º")}</div></div></div>
+  </div>`;
+  const grupos = c.grupos.map(g => `<div class="card"><div class="row" style="margin-bottom:6px"><h2 style="margin:0">Grupo ${g.L}</h2><span class="sp"></span>${status(g.done, g.matches.some(m => m.res))}</div>
+    ${standings(g.table, {zone: x => x.pos <= 2 ? "z-q" : "z-r"})}
+    <details><summary>Jogos do grupo</summary>${[6,7,8,9,10,11].map(r => `<div class="small muted" style="margin-top:8px">Rodada ${r}</div>` + g.matches.filter(m => m.r === r).map(matchRow).join("")).join("")}</details></div>`).join("");
+  return `<h1>Copa Reset</h1><p class="sub">Rodadas 6 a 19 · 8 grupos de 4 (ida e volta, R6–R11), classificam-se os 2 primeiros · mata-mata em ida e volta (agregado). ${status(c.done, M.has(6))}</p>
+  ${c.done ? `<div class="card" style="margin-bottom:14px"><div class="row" style="gap:18px">${c.podium.map((id,i) => `<div class="row">${medal(i+1)}${team(id,{cartola:true})}</div>`).join("")}</div></div>` : ""}
+  <h2>Mata-mata</h2>${bracket}
+  <div class="sec"><h2>Fase de grupos</h2>
+  <div class="legend" style="margin:-4px 0 10px"><span><i style="background:var(--win)"></i>Classificados ao mata-mata</span><span><i style="background:var(--accent)"></i>Vão para o Resta 1</span><span>Desempate: pontos, vitórias, saldo, gols pró, sorteio</span></div>
+  <div class="grid g2">${grupos}</div></div>`;
+};
+
+V.resta1 = () => {
+  const r = M.r1;
+  if (!r.participants.length) return `<h1>Resta 1</h1><p class="sub">Começa na rodada 12 com os 16 eliminados da fase de grupos.</p><div class="note">Aguardando o fim da fase de grupos da Copa Reset.</div>`;
+  const cur = curRound("r1", 12, 19);
+  const rd = r.rounds.find(x => x.r === cur);
+  const list = r.ranking.map((x,i) => {
+    const champ = r.champion === x.id;
+    return `<div class="r1i ${x.alive ? (champ ? "champ" : "") : "out"}"><span class="muted num" style="width:20px">${i+1}</span><span class="sp">${team(x.id)}</span>${champ ? `<span class="pill done">Campeão</span>` : x.alive ? `<span class="pill live">Vivo</span>` : `<span class="small muted">R${x.r} · ${fmt(x.p)}</span>`}</div>`;
+  }).join("");
+  return `<h1>Resta 1</h1><p class="sub">Rodadas 12 a 19 · 16 eliminados da fase de grupos · a cada rodada os 2 últimos caem. Os 8 primeiros eliminados vão para o Backup e os 8 que sobram (após a R15) vão para o Hard Reset. ${status(r.done, r.rounds.length > 0)}</p>
+  <div class="grid g2">
+    <div class="card"><h2>Classificação</h2><div class="r1list">${list}</div></div>
+    <div class="card"><h2>Rodada a rodada</h2>${roundSelector("r1", 12, 19, cur)}
+      ${rd ? `<table class="num"><tbody>${rd.rows.map(x => `<tr class="${x.out ? "out" : ""}"><td class="pos">${x.rank}</td><td class="t">${team(x.id)}</td><td>${x.miss ? `<span class="pill warn">sem pontuação</span>` : fmt(x.p)}</td><td class="l">${x.out ? `<span class="pill" style="color:var(--lose)">Eliminado</span>` : ""}</td></tr>`).join("")}</tbody></table>` : `<div class="note">Rodada ${cur} ainda não lançada.</div>`}
+    </div>
+  </div>`;
+};
+
+function ligaView(L, nome, sub, sel){
+  if (!L.started) return `<h1>${nome}</h1><p class="sub">${sub}</p><div class="note">Participantes definidos após a rodada 15 (oitavas da Copa Reset + 4 primeiras rodadas do Resta 1).</div>`;
+  const cur = curRound(sel, 20, 34);
+  const rd = L.rounds.find(x => x.r === cur);
+  return `<h1>${nome}</h1><p class="sub">${sub} ${status(L.done, M.has(20), `Rodada ${Math.max(0, Math.min(15, M.last-19))}/15`)}</p>
+  <div class="grid g2">
+    <div class="card"><h2>Classificação</h2>${standings(L.table, {pct:true, zone: x => x.pos === 1 ? "z-g" : x.pos <= 4 ? "z-q" : ""})}
+      <div class="legend"><span><i style="background:var(--gold)"></i>Líder → Final Boss</span><span><i style="background:var(--win)"></i>Premiação (até 4º)</span><span>Desempate: pontos, vitórias, saldo, gols pró, sorteio</span></div></div>
+    <div class="card"><h2>Jogos · Rodada ${cur} <span class="muted small">(${cur-19}/15)</span></h2>${roundSelector(sel, 20, 34, cur)}${rd.matches.map(matchRow).join("")}</div>
+  </div>`;
+}
+V.hardreset = () => ligaView(M.hr, "Hard Reset", "Rodadas 20 a 34 · pontos corridos (turno único) · os 8 que sobraram no Resta 1 + os 8 classificados às quartas da Copa Reset.", "hr");
+V.backup = () => ligaView(M.bk, "Backup", "Rodadas 20 a 34 · pontos corridos (turno único) · os 8 primeiros eliminados do Resta 1 + os 8 eliminados nas oitavas da Copa Reset.", "bk");
+
+V.finalboss = () => {
+  const f = M.fb;
+  return `<h1>Final Boss</h1><p class="sub">Rodadas 35 a 38 · os campeões de cada campeonato · semifinais (R35–R36) e final/3º lugar (R37–R38) em ida e volta. ${status(f.done, M.has(35))}</p>
+  <div class="grid g2">
+    <div><h2>Semifinais</h2><div class="grid">${mmCard(f.s1,"Semi 1 · Copa Reset x Backup")}${mmCard(f.s2,"Semi 2 · Resta 1 x Hard Reset")}</div></div>
+    <div><h2>Decisão</h2><div class="grid">${mmCard(f.f,"Finalíssima")}${mmCard(f.t,"Disputa de 3º lugar")}</div></div>
+  </div>
+  <div class="note sec">Enquanto os campeonatos não terminam, os confrontos mostram "A definir". Hoje: Copa Reset ${M.copa.done ? "→ "+esc(M.nm(M.copa.podium[0])) : "em andamento"} · Resta 1 ${M.r1.done ? "→ "+esc(M.nm(M.r1.champion)) : "em andamento"} · Hard Reset líder ${M.hr.started ? esc(M.nm(M.hr.table[0].id)) : "–"} · Backup líder ${M.bk.started ? esc(M.nm(M.bk.table[0].id)) : "–"}.</div>`;
+};
+
+V.geral = () => {
+  const s = M.sup, n = M.rounds.length;
+  return `<h1>Reset Supremo & Overdrive</h1><p class="sub">Supremo: maior pontuação somada nas 38 rodadas. Overdrive: maior pontuação em uma única rodada.</p>
+  <div class="grid g2">
+    <div class="card"><div class="row"><h2 style="margin:0">Reset Supremo</h2><span class="sp"></span>${status(s.done, n > 0)}</div>
+      <div class="tw"><table class="num"><thead><tr><th></th><th class="l">Time</th><th>Total</th><th>Média</th><th>R${M.last}</th></tr></thead><tbody>
+      ${s.table.map(x => `<tr class="${x.pos === 1 ? "z-g" : ""}"><td class="pos">${x.pos}</td><td class="t">${team(x.id,{cartola:true})}</td><td><b>${fmt(x.pts)}</b></td><td class="muted">${fmt(x.n ? x.pts/x.n : null)}</td><td class="muted">${fmt(M.P(M.last,x.id))}</td></tr>`).join("")}
+      </tbody></table></div></div>
+    <div class="card"><div class="row"><h2 style="margin:0">Overdrive</h2><span class="sp"></span>${status(M.od.done, n > 0)}</div>
+      <table class="num"><thead><tr><th></th><th class="l">Time</th><th>Rodada</th><th>Pontos</th></tr></thead><tbody>
+      ${M.od.top.map((x,i) => `<tr class="${i === 0 ? "z-g" : ""}"><td class="pos">${i+1}</td><td class="t">${team(x.id,{cartola:true})}</td><td class="muted">R${x.r}</td><td><b>${fmt(x.p)}</b></td></tr>`).join("")}
+      </tbody></table></div>
+  </div>`;
+};
+
+V.regras = () => {
+  const R = [
+    ["Bootcamp","1–5","32","Todos","Não há confronto direto. Cada um por si. Os 8 melhores serão cabeças de chave da Copa Reset.","Sorteio","bootcamp"],
+    ["Copa Reset","6–19","32","Todos","Formato copa: fase de grupos e depois mata-mata. 8 grupos de 4, jogos de ida e volta; classificam-se os 2 primeiros.","Nº de vitórias, saldo de gols, gols pró, sorteio","copa"],
+    ["Resta 1","12–19","16","Os 16 eliminados na 1ª fase da Copa Reset","A cada rodada os 2 últimos são eliminados.","Sorteio","resta1"],
+    ["Hard Reset","20–34","16","Os 8 últimos restantes do Resta 1 + 8 classificados para as quartas da Copa Reset","Pontos corridos: todos se enfrentam 1 vez.","Nº de vitórias, saldo de gols, gols pró, sorteio","hardReset"],
+    ["Backup","20–34","16","Os 8 primeiros eliminados do Resta 1 + 8 eliminados nas oitavas da Copa Reset","Pontos corridos: todos se enfrentam 1 vez.","Nº de vitórias, saldo de gols, gols pró, sorteio","backup"],
+    ["Final Boss","35–38","4","Campeão de cada campeonato","Semi: JG1 – Campeão da Copa Reset x Campeão do Backup; JG2 – Campeão do Resta 1 x Campeão do Hard Reset.","Sorteio","finalBoss"],
+    ["Reset Supremo","1–38","32","Todos","Maior pontuação geral do ano (38 rodadas), independentemente de eliminações ou títulos.","Sorteio","supremo"],
+    ["Overdrive","1–38","32","Todos","Maior pontuação em uma única rodada da temporada.","Sorteio","overdrive"],
+  ];
+  return `<h1>Regras</h1><p class="sub">${esc(D.nome)} · vitória = 3 pontos, empate (mesma pontuação) = 1 ponto · no mata-mata vale a soma das duas rodadas.</p>
+  <div class="card"><div class="tw"><table class="rules"><thead><tr><th>Campeonato</th><th>Rodadas</th><th>Times</th><th>Participantes</th><th>Regra</th><th>Desempate</th><th>Premiação</th></tr></thead><tbody>
+  ${R.map(x => `<tr><td>${x[0]}</td><td class="num">${x[1]}</td><td class="num">${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td><td>${x[5]}</td><td><ul>${(D.premios[x[6]]||[]).map((v,i) => `<li class="num">${i+1}º = ${brl(v)}</li>`).join("")}</ul></td></tr>`).join("")}
+  </tbody></table></div></div>`;
+};
+
+/* ---------------- atualização ---------------- */
+const byName = () => { const m = new Map(); D.times.forEach(t => m.set(norm(t.nome), t.id)); return m; };
+function norm(s){ return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim(); }
+function parsePaste(txt){
+  const ids = new Set(D.times.map(t => t.id)), names = byName();
+  const res = new Map(), unknown = [];
+  for (const line of txt.split(/\r?\n/)){
+    if (!line.trim()) continue;
+    let cells = line.split("\t");
+    if (cells.length < 2) cells = line.split(";");
+    if (cells.length < 2) cells = line.trim().split(/\s{2,}/);
+    cells = cells.map(c => c.trim());
+    let id = null;
+    for (const c of cells) if (/^\d+$/.test(c) && ids.has(+c)){ id = +c; break; }
+    if (id == null) for (const c of cells){ const x = names.get(norm(c)); if (x){ id = x; break; } }
+    let pts = null;
+    for (let i = cells.length-1; i >= 0; i--){
+      const c = cells[i].replace(/\s/g, "");
+      if (/^-?\d+([.,]\d+)?$/.test(c) && !(id != null && +c === id)){ pts = parseFloat(c.replace(",", ".")); break; }
+    }
+    if (id != null && pts != null) res.set(id, Math.round(pts*100)/100);
+    else if (!/rodada|timeid|pontos/i.test(line)) unknown.push(line);
+  }
+  return {res, unknown};
+}
+
+V.atualizar = () => {
+  const baseRounds = Object.keys(BASE.pontuacoes || {}).map(Number).sort((a,b) => a-b);
+  const locR = Object.keys(LOCAL.pontuacoes).map(Number).sort((a,b) => a-b);
+  const r = UI.editR || Math.min(TOTAL_RODADAS, (M.last || 0) + 1);
+  UI.editR = r;
+  const cur = D.pontuacoes[r] || {};
+  const teams = D.times.slice().sort((a,b) => COLL.compare(a.nome, b.nome));
+  const ties = M.ties;
+  return `<h1>Atualizar dados</h1>
+  <p class="sub">As alterações ficam salvas neste navegador. Para guardar de vez (ou mandar para a galera), clique em <b>Baixar HTML atualizado</b> e substitua o arquivo.</p>
+  <div class="grid g2">
+    <div class="card"><h2>Situação</h2>
+      <p class="small">No arquivo: ${baseRounds.length ? `rodadas <b>${baseRounds[0]}–${baseRounds[baseRounds.length-1]}</b> (${baseRounds.length})` : "nenhuma rodada"}.<br>
+      Só neste navegador: ${locR.length ? `rodadas <b>${locR.join(", ")}</b>` : "nenhuma rodada"}${Object.keys(LOCAL.desempates).length ? ` · ${Object.keys(LOCAL.desempates).length} sorteio(s)` : ""}.</p>
+      <div class="row"><button class="btn pri" data-act="baixar">Baixar HTML atualizado</button>
+      <label class="btn">Importar do Excel (.xlsx)<input type="file" accept=".xlsx,.xlsm,.xls" data-act="xlsx" hidden></label>
+      ${localCount() ? `<button class="btn danger" data-act="limpar">Descartar alterações locais</button>` : ""}</div>
+      <p class="small muted" style="margin-bottom:0">Importar do Excel lê a aba <b>Pontuação</b> da sua planilha (colunas Rodada, timeId, Pontos) e carrega todas as rodadas de uma vez. Precisa de internet para carregar o leitor de planilhas.</p>
+    </div>
+    <div class="card"><h2>Sorteios / desempates</h2>
+      ${ties.length ? ties.map(t => `<div style="margin-bottom:10px"><div class="small"><b>${esc(t.label)}</b></div>
+        <div class="row" style="margin-top:4px"><select data-tie="${esc(t.key)}"><option value="">— vencedor do sorteio —</option>${t.options.map(id => `<option value="${id}" ${t.chosen === id ? "selected" : ""}>${esc(M.nm(id))}</option>`).join("")}</select>${t.chosen ? `<span class="pill done">definido</span>` : `<span class="pill warn">pendente</span>`}</div></div>`).join("")
+        : `<div class="note ok">Nenhum empate que dependa de sorteio até agora.</div>`}
+    </div>
+  </div>
+  <div class="card sec"><div class="row"><h2 style="margin:0">Lançar / corrigir rodada</h2><span class="sp"></span>
+    <label class="small">Rodada <input type="number" min="1" max="${TOTAL_RODADAS}" value="${r}" data-act="editR" style="width:70px"></label>
+    ${D.pontuacoes[r] ? `<span class="pill done">já lançada</span>` : `<span class="pill">nova</span>`}</div>
+    <p class="small muted">Cole aqui o que você exporta do app Parciais (as mesmas linhas que você cola na aba Pontuação: timeId, time, cartola, pontos). Também aceita colar só "time ⇥ pontos".</p>
+    <textarea id="paste" placeholder="26119120	atleticoBangu.fc	Diego Martins	98.25&#10;6335880	TE ARREBENTO 2026	WILLIAN RIZALDE	86.46&#10;..."></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn" data-act="ler">Ler colagem</button><span id="pmsg" class="small muted"></span></div>
+    <div class="sgrid" id="sgrid">${teams.map(t => `<label>${team(t.id)}<input type="text" inputmode="decimal" data-id="${t.id}" value="${cur[t.id] != null ? String(cur[t.id]).replace(".", ",") : ""}" class="${D.pontuacoes[r] && cur[t.id] == null ? "miss" : ""}"></label>`).join("")}</div>
+    <div class="row" style="margin-top:12px"><button class="btn pri" data-act="salvar">Salvar rodada ${r}</button>${D.pontuacoes[r] ? `<button class="btn" data-act="copiar">Copiar rodada ${r} para o Excel</button><button class="btn danger" data-act="excluir">Excluir rodada ${r}</button>` : ""}</div>
+    ${D.pontuacoes[r] ? `<p class="small muted" style="margin-bottom:0">"Copiar para o Excel" copia as linhas no formato da aba Pontuação (Rodada, timeId, time, cartola, pontos): cole a partir da coluna B.</p>` : ""}
+  </div>`;
+};
+
+function lerGrade(){
+  const o = {}; let n = 0;
+  document.querySelectorAll("#sgrid input").forEach(i => {
+    const v = i.value.trim().replace(/\s/g, "").replace(",", ".");
+    if (v !== "" && !isNaN(+v)){ o[i.dataset.id] = Math.round(+v*100)/100; n++; }
+  });
+  return {o, n};
+}
+
+async function importarXlsx(file){
+  toast("Lendo planilha…");
+  if (!window.XLSX){
+    await new Promise((ok, err) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; s.onload = ok; s.onerror = () => err(new Error("Sem conexão para carregar o leitor de planilhas")); document.head.appendChild(s); });
+  }
+  const wb = XLSX.read(await file.arrayBuffer(), {type:"array"});
+  const sn = wb.SheetNames.find(n => norm(n) === "pontuacao") || wb.SheetNames.find(n => /pontua/i.test(norm(n)));
+  if (!sn) throw new Error("Aba Pontuação não encontrada");
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], {header:1, raw:true, defval:null});
+  const hi = rows.findIndex(r => r && r.some(c => norm(c) === "rodada") && r.some(c => norm(c) === "timeid"));
+  if (hi < 0) throw new Error("Cabeçalho Rodada/timeId não encontrado");
+  const h = rows[hi].map(norm);
+  const cR = h.indexOf("rodada"), cI = h.indexOf("timeid"), cP = h.lastIndexOf("pontos");
+  const ids = new Set(D.times.map(t => t.id));
+  const out = {};
+  for (const r of rows.slice(hi+1)){
+    if (!r) continue;
+    const rd = parseInt(r[cR]), id = parseInt(r[cI]);
+    let p = r[cP]; if (typeof p === "string") p = parseFloat(p.replace(",", "."));
+    if (!rd || !ids.has(id) || p == null || isNaN(p)) continue;
+    (out[rd] = out[rd] || {})[id] = Math.round(p*100)/100;
+  }
+  const n = Object.keys(out).length;
+  if (!n) throw new Error("Nenhuma pontuação encontrada");
+  let changed = 0;
+  for (const [rd, m] of Object.entries(out)){
+    if (JSON.stringify(m) !== JSON.stringify((BASE.pontuacoes || {})[rd] || null)){ LOCAL.pontuacoes[rd] = m; changed++; }
+    else delete LOCAL.pontuacoes[rd];
+  }
+  saveLocal(); refresh();
+  toast(`${n} rodadas lidas · ${changed} com novidades`);
+}
+
+function baixar(){
+  const data = JSON.parse(JSON.stringify(D));
+  data.atualizadoEm = new Date().toISOString();
+  const json = JSON.stringify(data).replace(/</g, "\\u003c");
+  const html = SOURCE.replace(/(<script id="liga-dados" type="application\/json">)[\s\S]*?(<\/script>)/, (_, a, b) => a + json + b);
+  const blob = new Blob([html], {type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (D.nome || "Liga") + ".html";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast("Arquivo gerado — substitua o HTML antigo por ele");
+}
+
+/* ---------------- eventos ---------------- */
+document.addEventListener("click", e => {
+  const rb = e.target.closest("[data-rsel] button");
+  if (rb){ UI[rb.parentNode.dataset.rsel] = +rb.dataset.r; draw(); return; }
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const act = b.dataset.act;
+  if (act === "baixar") baixar();
+  if (act === "limpar"){ if (confirm("Descartar todas as alterações feitas neste navegador?")){ LOCAL = {pontuacoes:{}, desempates:{}}; saveLocal(); refresh(); toast("Alterações locais descartadas"); } }
+  if (act === "ler"){
+    const {res, unknown} = parsePaste($("#paste").value);
+    document.querySelectorAll("#sgrid input").forEach(i => { const v = res.get(+i.dataset.id); if (v != null) i.value = String(v).replace(".", ","); i.classList.toggle("miss", v == null); });
+    $("#pmsg").innerHTML = `${res.size} de ${D.times.length} times reconhecidos` + (unknown.length ? ` · <span style="color:var(--warn)">${unknown.length} linha(s) não reconhecida(s): ${esc(unknown.slice(0,3).join(" | "))}</span>` : "");
+  }
+  if (act === "salvar"){
+    const {o, n} = lerGrade(); const r = UI.editR;
+    if (!n){ toast("Nenhuma pontuação preenchida"); return; }
+    if (n < D.times.length && !confirm(`Só ${n} de ${D.times.length} times têm pontuação. Salvar assim mesmo?`)) return;
+    LOCAL.pontuacoes[r] = o; saveLocal(); refresh(); toast(`Rodada ${r} salva`);
+  }
+  if (act === "copiar"){
+    const r = UI.editR, sc = D.pontuacoes[r] || {};
+    const linhas = D.times.filter(t => sc[t.id] != null).sort((a,b) => sc[b.id]-sc[a.id])
+      .map(t => [r, t.id, t.nome, t.cartola, (+sc[t.id]).toFixed(2)].join("\t"));
+    navigator.clipboard.writeText(linhas.join("\n")).then(() => toast(`Rodada ${r} copiada — cole na coluna B da aba Pontuação`), () => toast("Não foi possível copiar"));
+  }
+  if (act === "excluir"){ const r = UI.editR; if (confirm(`Excluir as pontuações da rodada ${r}?`)){ LOCAL.pontuacoes[r] = null; saveLocal(); refresh(); toast(`Rodada ${r} excluída`); } }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.act === "editR"){ UI.editR = Math.max(1, Math.min(TOTAL_RODADAS, +t.value || 1)); draw(); }
+  if (t.dataset.act === "xlsx" && t.files[0]){ importarXlsx(t.files[0]).catch(err => toast(err.message)); t.value = ""; }
+  if (t.dataset.tie){ LOCAL.desempates[t.dataset.tie] = t.value ? +t.value : null; if (!t.value && !(t.dataset.tie in (BASE.desempates||{}))) delete LOCAL.desempates[t.dataset.tie]; saveLocal(); refresh(); }
+});
+window.addEventListener("hashchange", draw);
+
+function tab(){ const h = location.hash.slice(1); return TABS.some(t => t[0] === h) ? h : "inicio"; }
+function draw(){
+  const t = tab();
+  $("#nav").innerHTML = TABS.map(([k, n]) => `<a href="#${k}" class="${k === t ? "on" : ""}">${n}${k === "atualizar" && M.ties.some(x => x.chosen == null) ? " •" : ""}</a>`).join("");
+  $("#main").innerHTML = V[t]();
+}
+function refresh(){
+  merge(); M = compute(D);
+  document.title = D.nome; $("#ttl").textContent = D.nome;
+  $("#progtxt").textContent = `Rodada ${M.last}/${TOTAL_RODADAS}`;
+  $("#progbar").style.width = (M.last / TOTAL_RODADAS * 100) + "%";
+  draw();
+}
+refresh();
+</script>
+</body>
+</html>
