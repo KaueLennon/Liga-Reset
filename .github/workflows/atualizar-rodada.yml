@@ -1,0 +1,83 @@
+name: Atualizar rodada do Cartola
+
+on:
+  schedule:
+    # todo dia, 4 vezes (horário de Brasília: 07h, 13h, 19h e 23h)
+    - cron: "0 10,16,22 * * *"
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      rodada:
+        description: "Rodada específica (deixe vazio para buscar só as encerradas que faltam)"
+        required: false
+        default: ""
+      forcar:
+        description: "Buscar de novo mesmo se a rodada já estiver salva"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths: [index.html]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: atualizar-rodada
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      mudou: ${{ steps.busca.outputs.mudou }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Buscar rodada encerrada na API do Cartola
+        id: busca
+        if: github.event_name != 'push'
+        env:
+          RODADA: ${{ inputs.rodada }}
+          FORCAR: ${{ inputs.forcar }}
+        run: |
+          ARGS=()
+          if [ -n "$RODADA" ]; then ARGS+=(--rodada "$RODADA"); fi
+          if [ "$FORCAR" = "true" ]; then ARGS+=(--forcar); fi
+          python3 scripts/atualizar_rodada.py "${ARGS[@]}"
+
+      - name: Salvar no repositório
+        if: ${{ !cancelled() && steps.busca.outputs.mudou == 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Rodada ${{ steps.busca.outputs.rodadas }}: pontuação atualizada pela API do Cartola"
+          git push
+
+  publicar:
+    needs: atualizar
+    if: ${{ !cancelled() && (needs.atualizar.outputs.mudou == 'true' || github.event_name != 'schedule') }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Preparar site
+        run: |
+          mkdir _site
+          cp index.html _site/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
