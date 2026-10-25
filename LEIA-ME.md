@@ -13,6 +13,8 @@ Esta pasta é o repositório completo:
 - Roda **todo dia, 4 vezes** (07h, 13h, 19h e 23h de Brasília).
 - Só busca **rodadas encerradas**. A rodada em andamento nunca é lida, porque nesse período a API devolve a pontuação da rodada anterior.
 - **Não regrava** rodada que já está salva. Se ficar alguns dias sem rodar, busca todas as encerradas que faltarem.
+- **Reconferência:** a última rodada encerrada é buscada de novo a cada execução, até a próxima rodada ser salva. Se o Cartola corrigir alguma pontuação, ela é atualizada e o resumo mostra quais times mudaram. Rodadas mais antigas ficam travadas.
+- **Ao subir um `index.html`**, o workflow também roda a busca: se o arquivo enviado estiver sem alguma rodada já encerrada, ela é completada na hora.
 - Se os dados vierem incompletos, zerados ou iguais aos da rodada anterior, **não salva nada** e o GitHub te manda um e-mail avisando da falha.
 - Quando salva uma rodada, faz um commit no repositório e publica o site.
 
@@ -36,11 +38,15 @@ Você não precisa fazer nada. Para acompanhar, abra a aba **Actions**: cada exe
 
 **Corrigir ou rebuscar uma rodada:** em **Actions → Atualizar rodada do Cartola → Run workflow**, informe a rodada e marque **forcar**.
 
-**Lançar ou corrigir na mão:** abra o site, vá em **Atualizar dados**, lance a rodada, clique em **Baixar HTML atualizado**, renomeie para `index.html` e envie no repositório no lugar do antigo (**Add file → Upload files**). O site é republicado sozinho.
+**Página do organizador (escondida):** a página "Atualizar dados" não aparece no menu. Acesse pelo endereço do site terminando em `#admin` (ex.: `https://kauelennon.github.io/Liga-Reset/#admin`). Nela você:
+- lança ou corrige uma rodada na mão;
+- define sorteios de desempate;
+- copia uma rodada para o Excel (cole a partir da coluna B da aba Pontuação);
+- gera o HTML atualizado (**Baixar HTML atualizado**).
 
-**Sorteios de desempate:** são definidos na aba **Atualizar dados**, que também gera o HTML para você enviar.
+O que você muda ali fica só no seu navegador até você baixar o HTML, renomear para `index.html` e enviar no repositório (**Add file → Upload files**). O site é republicado sozinho.
 
-**Manter o Excel em dia:** no site, em **Atualizar dados**, escolha a rodada e clique em **Copiar rodada N para o Excel**. Depois cole a partir da coluna B da aba Pontuação.
+**Mudar o visual do site:** baixe antes o `index.html` atual do repositório (botão de download na página do arquivo), porque é nele que estão as rodadas mais recentes.
 
 ## Observações
 

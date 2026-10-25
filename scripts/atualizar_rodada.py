@@ -3,7 +3,9 @@
 Regras:
 - Só busca rodadas já encerradas: a rodada em andamento (rodada_atual da API) nunca é lida,
   porque enquanto ela acontece a API devolve a pontuação da rodada anterior.
-- Não regrava rodada que já está salva, a não ser com --forcar.
+- Não regrava rodada que já está salva, a não ser com --forcar. A exceção é a última rodada
+  encerrada: ela é reconferida a cada execução (até a próxima ser salva) e, se o Cartola
+  corrigir alguma pontuação, é atualizada.
 - Recusa os dados (e falha o workflow, gerando e-mail do GitHub) se vierem incompletos,
   zerados ou iguais aos da rodada anterior.
 
@@ -133,6 +135,7 @@ def main():
     ultima = atual if st.get("game_over") else atual - 1
     ultima = min(ultima, total)
 
+    reconferir = None
     if a.rodada:
         if a.rodada > ultima:
             raise SystemExit(f"A rodada {a.rodada} ainda não terminou (última encerrada: {ultima}).")
@@ -142,35 +145,54 @@ def main():
         alvos = [a.rodada]
     else:
         alvos = [r for r in range(1, ultima + 1) if str(r) not in pont]
+        # a última rodada encerrada continua sendo reconferida até a próxima ser salva
+        if ultima >= 1 and str(ultima) in pont:
+            reconferir = ultima
 
-    if not alvos:
-        resumo(f"Nada a fazer: última rodada encerrada é a {ultima} e ela já está salva (mercado: rodada {atual}, status {status}).")
-        return 0
-
-    feitas = []
+    nomes = {str(t["id"]): t["nome"] for t in times}
+    feitas, mensagens, falhou = [], [], False
     for r in alvos:
         try:
             res, avisos = buscar_rodada(r, times, pont)
         except DadosInvalidos as e:
             resumo(f"❌ {e}")
-            if feitas:
-                break
-            return 1
+            falhou = True
+            break
         pont[str(r)] = res
         feitas.append(r)
-        nomes = {str(t["id"]): t["nome"] for t in times}
+        mensagens.append(f"rodada {r} salva")
         top = sorted(res.items(), key=lambda x: -x[1])[:3]
         resumo(f"✅ Rodada {r} salva ({len(res)} times). Destaques: " + ", ".join(f"{nomes[k]} {v:.2f}" for k, v in top))
         if avisos:
             resumo(f"⚠️ Rodada {r}: acumulado do Cartola diferente do salvo para: {', '.join(avisos)} (pode ser correção manual antiga).")
 
+    if reconferir and not falhou:
+        try:
+            res, _ = buscar_rodada(reconferir, times, pont)
+        except DadosInvalidos as e:
+            res = None
+            resumo(f"⚠️ Reconferência da rodada {reconferir} ignorada: {e}")
+        if res:
+            antigo = pont[str(reconferir)]
+            mudancas = [k for k, v in res.items() if antigo.get(k) != v]
+            if mudancas:
+                pont[str(reconferir)] = res
+                feitas.append(reconferir)
+                mensagens.append(f"rodada {reconferir} reconferida ({len(mudancas)} times corrigidos)")
+                resumo(f"🔁 Rodada {reconferir} mudou no Cartola e foi atualizada: " +
+                       ", ".join(f"{nomes[k]} {antigo.get(k)} → {res[k]:.2f}" for k in mudancas))
+            else:
+                resumo(f"Rodada {reconferir} reconferida: nenhuma mudança.")
+
     if not feitas:
-        return 1
+        if not falhou:
+            resumo(f"Nada novo: última rodada encerrada é a {ultima} (mercado: rodada {atual}, status {status}).")
+        return 1 if falhou else 0
     dados["atualizadoEm"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     gravar_html(a.arquivo, html, dados)
     saida("mudou", "true")
-    saida("rodadas", ",".join(map(str, feitas)))
-    return 0 if len(feitas) == len(alvos) else 1
+    saida("mensagem", "Cartola: " + "; ".join(mensagens))
+    return 1 if falhou else 0
 
 
 if __name__ == "__main__":
